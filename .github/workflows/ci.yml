@@ -57,7 +57,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/portfolio
+            cd ~/portfolio2026
             git pull origin main
             sudo docker compose up -d --build app
             sudo docker image prune -f

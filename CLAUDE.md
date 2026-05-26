@@ -15,7 +15,7 @@
 | n8n Profesional | `~/n8n-docker` | n8n.cesarheredero.com:5678 |
 | Python runner (distroless + Selenium) | `~/selenium` | interno |
 | selenium-chrome v4.41+ | contenedor | http://selenium-chrome:4444 |
-| Portfolio (este proyecto) | `~/portfolio` | cesarheredero.com → :3000 |
+| Portfolio2026 (este proyecto) | `~/portfolio2026` | cesarheredero.com → :3000 |
 | Intranet frontend | — | :4000 |
 | Sistema de deploys | — | :8000 |
 
@@ -44,8 +44,8 @@ free -h                            # salud de memoria
 
 ### Primer despliegue
 ```bash
-git clone https://github.com/CesarHeredero/Portfolio2026.git ~/portfolio
-cd ~/portfolio
+git clone https://github.com/CesarHeredero/Portfolio2026.git ~/portfolio2026
+cd ~/portfolio2026
 cp .env.example .env
 nano .env                          # rellena los valores reales
 sudo docker compose up -d --build
@@ -53,7 +53,7 @@ sudo docker compose up -d --build
 
 ### Actualizaciones
 ```bash
-cd ~/portfolio
+cd ~/portfolio2026
 git pull origin main
 sudo docker compose up -d --build app
 ```

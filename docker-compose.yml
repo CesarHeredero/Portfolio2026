@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: portfolio_app
+    container_name: portfolio2026_app
     restart: unless-stopped
     environment:
       - APP_ENV=production
