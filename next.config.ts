@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     typedRoutes: false,
   },
   headers: async () => {
-    const isProduction = process.env.APP_ENV === 'production';
+    const isProduction = process.env.NEXTAUTH_URL === 'https://cesarheredero.com';
     const securityHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
       { key: 'X-Frame-Options', value: 'DENY' },
