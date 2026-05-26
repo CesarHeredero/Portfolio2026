@@ -5,7 +5,6 @@ type Props = {
   case_: Case;
   locale: Locale;
   workPath: string;
-  piaLabel?: string;
   readCaseLabel?: string;
   featuredLabel?: string;
 };
@@ -14,7 +13,6 @@ export function CaseCard({
   case_,
   locale,
   workPath,
-  piaLabel = 'PIA',
   readCaseLabel = 'Read',
   featuredLabel = 'Featured',
 }: Props) {

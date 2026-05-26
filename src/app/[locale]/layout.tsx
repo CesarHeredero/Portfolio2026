@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations } from 'next-intl/server';
+import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { ThemeScript } from '@/components/theme-script';
 import { StatusBar } from '@/components/status-bar';

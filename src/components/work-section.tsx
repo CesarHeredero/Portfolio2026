@@ -99,7 +99,6 @@ export function WorkSection() {
               case_={c}
               locale={locale}
               workPath={workPath}
-              piaLabel={t('piaLabel')}
               readCaseLabel={t('readCase')}
               featuredLabel={t('featured')}
             />
