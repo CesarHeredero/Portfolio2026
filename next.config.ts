@@ -4,13 +4,14 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {
     typedRoutes: false,
   },
   headers: async () => {
-    const isProduction = process.env.VERCEL_ENV === 'production';
+    const isProduction = process.env.APP_ENV === 'production';
     const securityHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
       { key: 'X-Frame-Options', value: 'DENY' },

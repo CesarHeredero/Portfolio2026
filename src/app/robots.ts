@@ -5,7 +5,7 @@ const PROD_HOST = 'cesarheredero.com';
 export default function robots(): MetadataRoute.Robots {
   const host = process.env.VERCEL_URL ?? '';
   const isProd =
-    process.env.VERCEL_ENV === 'production' ||
+    process.env.APP_ENV === 'production' ||
     host === PROD_HOST ||
     host.endsWith(`.${PROD_HOST}`);
 
