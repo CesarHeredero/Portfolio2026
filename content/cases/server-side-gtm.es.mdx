@@ -1,0 +1,67 @@
+---
+slug: server-side-gtm
+title: Recuperar el 28% de usuarios invisibles con medición server-side
+category: DATA & PRIVACIDAD
+year: "2025"
+impactType: data
+featured: true
+tags:
+  - GTM Server-Side
+  - BigQuery
+  - First-Party
+  - RGPD
+  - Meta CAPI
+kpis:
+  - value: "28%"
+    label: Usuarios recuperados
+  - value: "7d → 2a"
+    label: Vida de cookie
+  - value: "4"
+    label: Equipos coordinados
+---
+
+## Contexto
+
+Safari ITP (Intelligent Tracking Prevention) borra las cookies de terceros a los 7 días de la última visita. En un ecommerce de automóviles donde el ciclo de decisión dura semanas o meses, eso equivale a perder rastro del usuario justo en el momento crítico.
+
+A esto se suma que un 28% de usuarios activos en Flexicar bloqueaban o rechazaban el tracking client-side.
+
+## Problema
+
+- **Ceguera analítica**: casi un tercio de los usuarios era invisible para GA4 y Meta Pixel.
+- **Atribución rota**: conversiones que llegaban meses después no se vinculaban a la visita original.
+- **Datos de CRM desconectados**: los leads en Salesforce no se cruzaban con el comportamiento web.
+- **Presión legal**: el RGPD exigía un modelo de consent más robusto para cumplimiento.
+
+## Acción
+
+### Arquitectura server-side
+
+- Implantación de Google Tag Manager Server-Side en infraestructura propia (Cloud Run).
+- Configuración de cookies first-party desde el servidor: vida útil de 2 años, dominio propio.
+- Enrutamiento de eventos GA4 y Meta CAPI a través del servidor antes de llegar a los destinos finales.
+
+### Integración con CRM y BigQuery
+
+- Especificación técnica del flujo de datos: web → sGTM → BigQuery → Salesforce.
+- Definición del modelo de identidad: `client_id`, `user_id`, `session_id` unificados.
+- Dashboard de reconciliación para comparar datos client-side vs server-side.
+
+### Coordinación de equipos
+
+Coordiné 4 equipos en paralelo durante 3 meses:
+- **Infra**: provisioning de Cloud Run, dominio de sGTM.
+- **Dev**: modificaciones al dataLayer y eventos custom.
+- **Data**: diseño de tablas en BigQuery y pipelines.
+- **Legal/Compliance**: revisión del modelo de consent y política de cookies.
+
+## Impacto
+
+| Métrica | Antes | Después |
+|---|---|---|
+| Usuarios visibles | ~72% | ~100% |
+| Vida de cookie (Safari) | 7 días | 2 años |
+| Atribución multi-sesión | Rota | Funcional |
+| Equipos coordinados | — | 4 |
+
+La inversión en paid media se volvió medible para un segmento que antes era invisible, lo que permitió optimizar la asignación de presupuesto con datos reales.

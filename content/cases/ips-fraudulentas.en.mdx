@@ -1,0 +1,55 @@
+---
+slug: ips-fraudulentas
+title: Detection and blocking of 300+ IPs generating fraudulent backlinks
+category: SEO & SECURITY
+year: "2025"
+impactType: seo
+tags:
+  - Search Console
+  - WAF
+  - Disavow
+  - Incident management
+kpis:
+  - value: "300+"
+    label: IPs neutralized
+  - value: "3"
+    label: Response phases
+---
+
+## Context
+
+During a routine Google Search Console review we detected an anomalous pattern: hundreds of new backlinks pointing to Flexicar pages from unrecognizable domains. Analysis revealed that 300+ unique IPs were generating artificial links in an automated fashion.
+
+## Problem
+
+- **Penalty risk**: Google can interpret artificial link patterns as deliberate PageRank manipulation, even if the beneficiary didn't request them.
+- **Link profile contamination**: the disavow file was outdated and didn't cover the new domains.
+- **No established protocol**: the team had no incident response procedure for this type of SEO attack.
+- **Exposure window**: the more pages Google crawled with those links, the higher the risk.
+
+## Action
+
+### Phase 1 — Audit & classification
+
+- Full backlink profile extraction from Search Console and Ahrefs.
+- Domain classification: clear spam, suspicious, legitimate.
+- Identification of 300+ unique IPs involved and source URL patterns.
+- Prioritization by link volume and spam domain age.
+
+### Phase 2 — Infrastructure-level blocking
+
+- Coordination with the Infra team for WAF (Web Application Firewall) rules.
+- IP range blocking by ASN when the pattern was clear enough.
+- Monitoring of new emerging IPs for 2 weeks.
+
+### Phase 3 — Google cleanup
+
+- Disavow file update in Search Console with all identified domains.
+- Protocol documentation for future incidents.
+- Briefing to the SEO team on early warning signals.
+
+## Impact
+
+Flexicar's domain authority was protected. The documented response protocol became the SEO team's standard procedure for similar incidents.
+
+No traffic data directly attributable to the block (the negative effects never materialized), but the risk was neutralized before Google processed the links in its next index update.

@@ -1,0 +1,25 @@
+{
+  "name": "César Heredero Herranz",
+  "role": "Senior Product Owner & UX Strategist",
+  "company": "Flexicar",
+  "location": "Madrid",
+  "remoteOk": true,
+  "email": "hola@cesarheredero.com",
+  "linkedin": "https://www.linkedin.com/in/cesarheredero",
+  "readCv": "https://read.cv/cesarheredero",
+  "cal": "https://cal.com/cesarheredero",
+  "baseUrl": "https://cesarheredero.com",
+  "availability": {
+    "status": "open",
+    "options": [
+      { "key": "searching", "tone": "live" },
+      { "key": "open", "tone": "live" },
+      { "key": "freelance", "tone": "live" },
+      { "key": "consulting", "tone": "live" },
+      { "key": "collab", "tone": "live" },
+      { "key": "selective", "tone": "soft" },
+      { "key": "busy", "tone": "mute" },
+      { "key": "hidden", "tone": "hidden" }
+    ]
+  }
+}

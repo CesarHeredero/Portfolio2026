@@ -1,0 +1,140 @@
+{
+  "experience": [
+    {
+      "id": "flexicar",
+      "year": "2019 — Hoy",
+      "yearEn": "2019 — Now",
+      "role": "Senior Product Owner · UX Strategist",
+      "company": "Flexicar",
+      "description": {
+        "es": "Ecommerce de automoción con +30.000 fichas en España y Portugal. Lideré 8 proyectos transversales en producto, UX y SEO técnico. Coordinación de 5 equipos (dev, marketing, SEO, editorial, infra).",
+        "en": "Automotive ecommerce with 30,000+ listings in Spain and Portugal. Led 8 cross-functional projects across product, UX and technical SEO. Coordinated 5 teams (dev, marketing, SEO, editorial, infra)."
+      },
+      "tags": ["Product Owner", "UX Strategy", "SEO técnico"]
+    },
+    {
+      "id": "devoteam",
+      "year": "2016 — 2019",
+      "yearEn": "2016 — 2019",
+      "role": "Consultor UX/UI Senior",
+      "company": "Devoteam",
+      "description": {
+        "es": "Diseño UX/UI para Toyota, Hyundai, Sacyl, Interflora, SHAI Tajo y otros clientes nacionales e internacionales. Prototipado y diseño multiplataforma.",
+        "en": "UX/UI design for Toyota, Hyundai, Sacyl, Interflora, SHAI Tajo and other national and international clients. Prototyping and multi-platform design."
+      },
+      "tags": ["UX/UI", "Sketch", "Design Thinking", "User Research"],
+      "award": {
+        "es": "Cardio Xplore · Ganador europeo 2017",
+        "en": "Cardio Xplore · European winner 2017"
+      }
+    },
+    {
+      "id": "freelance",
+      "year": "2017 — 2018",
+      "yearEn": "2017 — 2018",
+      "role": "Diseñador UX/UI · Freelance",
+      "roleEn": "UX/UI Designer · Freelance",
+      "company": "En paralelo a Devoteam",
+      "companyEn": "Parallel to Devoteam",
+      "description": {
+        "es": "Proyectos independientes de diseño UX/UI para clientes variados. UI, research y prototipado.",
+        "en": "Independent UX/UI projects for various clients. UI, research and prototyping."
+      },
+      "tags": ["UX Research", "Prototipado", "UI"]
+    },
+    {
+      "id": "pamicom",
+      "year": "Jul 2016 — Nov 2016",
+      "yearEn": "Jul 2016 — Nov 2016",
+      "role": "Consultor UX/UI",
+      "company": "Pamicom",
+      "description": {
+        "es": "Rediseño UX/UI de la web corporativa de telefonía para pymes. Diseño y maquetación del proyecto Referencia2 sobre WordPress.",
+        "en": "UX/UI redesign of the corporate website for B2B telecoms. Design and front-end of the Referencia2 project on WordPress."
+      },
+      "tags": ["UX/UI", "WordPress", "Diseño web"]
+    },
+    {
+      "id": "graphic",
+      "year": "2015 — 2017",
+      "yearEn": "2015 — 2017",
+      "role": "Diseñador gráfico",
+      "roleEn": "Graphic Designer",
+      "company": "Varios clientes",
+      "companyEn": "Various clients",
+      "description": {
+        "es": "Materiales gráficos y branding para empresas. Adobe Creative Suite.",
+        "en": "Graphic materials and branding for companies. Adobe Creative Suite."
+      },
+      "tags": ["Branding", "Diseño gráfico", "Adobe CS"]
+    },
+    {
+      "id": "succodimore",
+      "year": "Jun 2015 — May 2016",
+      "yearEn": "Jun 2015 — May 2016",
+      "role": "Consultor UX y maquetador",
+      "roleEn": "UX Consultant & Front-end",
+      "company": "Succodimore",
+      "description": {
+        "es": "Flujo de navegación, research y experiencia de usuario para distribuidora de moda italiana. Coordinación cross-departamento y email design.",
+        "en": "Navigation flow, research and UX for an Italian fashion distributor. Cross-department coordination and email design."
+      },
+      "tags": ["UX", "Research", "Email design"]
+    },
+    {
+      "id": "megustaverte",
+      "year": "2015 — 2016",
+      "yearEn": "2015 — 2016",
+      "role": "Consultor UX/UI y maquetador",
+      "roleEn": "UX/UI Consultant & Front-end",
+      "company": "Me Gusta Verte Sonreír",
+      "description": {
+        "es": "Diseño UX/UI para web de encuentros y actividades. Maquetación con WordPress.",
+        "en": "UX/UI for an events and activities website. WordPress front-end."
+      },
+      "tags": ["UX/UI", "WordPress"]
+    }
+  ],
+  "otherRoles": [
+    { "year": "Jun 2014", "role": "Editor de video", "roleEn": "Video editor", "company": "Mulafest" },
+    { "year": "2009 / 2012", "role": "Sala de máquinas · MTI", "roleEn": "Master control · MTI", "company": "Delux Madrid" },
+    { "year": "2010", "role": "Departamento de duplicados", "roleEn": "Duplicates department", "company": "Chello Multicanal" },
+    { "year": "Abr — Jun 2009", "role": "Prácticas · sala de máquinas", "roleEn": "Internship · master control", "company": "Serena Audiovisual" }
+  ],
+  "skills": [
+    {
+      "group": "Producto",
+      "items": ["Product Ownership", "Roadmap", "User stories", "Acceptance criteria", "Backlog refinement", "Agile / Scrum"]
+    },
+    {
+      "group": "UX & Design",
+      "items": ["UX/UI Design", "User Research", "Prototyping", "Design Systems", "Figma", "Sketch", "WCAG 2.1 AA"]
+    },
+    {
+      "group": "SEO técnico",
+      "items": ["Schema.org", "Sitemaps", "Canonical", "Core Web Vitals", "Search Console"]
+    },
+    {
+      "group": "Coordinación técnica",
+      "items": ["Spec de tracking", "Coord. con Data", "Coord. con Infra", "GTM Server-Side (spec)", "Briefing a equipos"]
+    },
+    {
+      "group": "Herramientas",
+      "items": ["Jira", "Confluence", "Miro", "Adobe CS", "IA (LLM tooling)"]
+    },
+    {
+      "group": "Liderazgo",
+      "items": ["Coordinación cross", "Stakeholder mgmt", "Mentoring", "Facilitación"]
+    }
+  ],
+  "education": [
+    {
+      "group": "Devoteam · Formación interna",
+      "items": ["UI Design Patterns for Successful Software", "Accessibility: How to Design for All", "Affordances: Designing Intuitive UI", "Agile Methods for UX Design", "Interaction Design Foundation", "Xamarin Forms (25h)"]
+    },
+    {
+      "group": "Udemy",
+      "items": ["Xamarin Forms multiplataforma", "Xamarin · CollectionView a fondo", "Xamarin · Temas selectos avanzados"]
+    }
+  ]
+}

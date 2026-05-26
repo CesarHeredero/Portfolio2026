@@ -1,0 +1,72 @@
+---
+slug: indexacion-30k
+title: Preparing 30,000+ vehicle listings for proper Google indexing
+category: TECHNICAL SEO
+year: "2024"
+impactType: seo
+tags:
+  - Sitemaps
+  - Schema.org
+  - Canonical
+  - Internal linking
+kpis:
+  - value: "30K+"
+    label: URLs managed
+  - value: "5"
+    label: Schema types
+---
+
+## Context
+
+Flexicar has over 30,000 active vehicle listings across Spain and Portugal. The catalogue rotates constantly: sold cars are taken down, new cars are added every day. Google wasn't finding all listings or processing them as fast as they were published.
+
+At the same time, the filter system (by brand, model, price, body type, province) generated thousands of pagination URLs with no SEO value that competed with real listings.
+
+## Problem
+
+- **Incomplete indexation**: part of the catalogue didn't appear in Google even after weeks of being published.
+- **Massive duplication**: filters generated URLs like `/used-cars?brand=toyota&price=0-15000&page=3` without canonicals, duplicating listing content.
+- **Outdated sitemaps**: sitemaps included sold listing URLs (404s or redirects) and didn't cover all active pages.
+- **Basic or absent Schema.org**: listings had minimal markup, missing price, availability or store location data.
+- **Wasted crawl budget**: Google consumed crawl budget on low-value URLs.
+
+## Action
+
+### Indexation audit
+
+- Extraction of indexation status for all URLs via Search Console API.
+- Classification: indexed, discovered not indexed, excluded, crawled not indexed.
+- Analysis of pages with the highest uncaptured traffic potential.
+
+### Sitemap architecture
+
+- Segmented sitemaps by type: active listings, category pages, static pages.
+- Sitemap index with sub-sitemaps of maximum 50,000 URLs each.
+- Automatic renewal: active listings sitemap regenerates every 24h.
+- Exclusion of pagination and filter URLs from sitemaps.
+
+### Canonical and robots rules
+
+- Canonical rule: all filter URLs point to the base category canonical.
+- Updated `robots.txt` to block pagination parameters from Google crawl.
+- Noindex applied to deep pagination pages (>page 3).
+
+### Schema.org for vehicle listings
+
+Implementation of 5 markup types on each listing:
+1. `Vehicle` — brand, model, year, color, mileage, fuel type.
+2. `Offer` — price, currency, availability, condition.
+3. `LocalBusiness` — store where the vehicle is available.
+4. `BreadcrumbList` — hierarchical navigation.
+5. `FAQPage` — frequently asked questions for the vehicle type.
+
+## Impact
+
+| Metric | Initial state | Target |
+|---|---|---|
+| Active URLs in sitemap | Partial + sold | 30K+ active, 0 sold |
+| Schema types | 1 (basic) | 5 (complete) |
+| URLs with correct canonical | Variable | 100% |
+| Crawl budget on low-value URLs | High | Minimal |
+
+Vehicle listings became properly indexable with complete structured data. Pagination stopped competing with real listings in Google's index.
