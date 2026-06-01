@@ -14,8 +14,8 @@ services:
       # Solo accesible desde localhost → Nginx Proxy Manager hace el proxy
       - "127.0.0.1:3000:3000"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/es"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/es', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 40s
