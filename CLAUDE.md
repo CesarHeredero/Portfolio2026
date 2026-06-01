@@ -60,6 +60,6 @@ sudo docker compose up -d --build app
 
 ### Configurar en Nginx Proxy Manager (panel :81)
 1. Add Proxy Host → Domain: `cesarheredero.com`
-2. Forward Hostname: `127.0.0.1` · Forward Port: `3000`
+2. Forward Hostname: `172.17.0.1` · Forward Port: `3000` (NPM está en Docker, no usar 127.0.0.1)
 3. Pestaña SSL → Request Let's Encrypt certificate
 4. Activar: Force SSL, HTTP/2, HSTS
