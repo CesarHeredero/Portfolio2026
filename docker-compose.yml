@@ -10,12 +10,16 @@ services:
       - NODE_ENV=production
     env_file:
       - .env
-    ports:
-      # NPM corre en Docker: usar 172.17.0.1 (bridge gateway) en NPM, no 127.0.0.1
-      - "127.0.0.1:3000:3000"
+    networks:
+      - npm_network
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/es', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+networks:
+  npm_network:
+    external: true
+    name: gestor-web_default
