@@ -10,9 +10,67 @@
   "cal": "https://cal.com/cesarheredero",
   "baseUrl": "https://cesarheredero.com",
   "content": {
-    "hero": { "title": { "es": "", "en": "" }, "sub": { "es": "", "en": "" } },
-    "about": { "bio": { "es": "", "en": "" } },
-    "contact": { "email": "", "linkedin": "", "cal": "" }
+    "hero": {
+      "pretitle": "",
+      "title": { "es": "", "en": "" },
+      "sub": { "es": "", "en": "" },
+      "idName": "",
+      "roleValue": "",
+      "expValue": "",
+      "locationValue": "",
+      "cta1": "",
+      "cta2": "",
+      "cta3": ""
+    },
+    "bento": {
+      "roleValue": "",
+      "roleCompany": "",
+      "seekingRoles": "",
+      "kpiValue": "",
+      "kpiLabel": "",
+      "clientsValue": "",
+      "awardValue": "",
+      "capabilities": ""
+    },
+    "about": {
+      "name": "",
+      "roleTag": "",
+      "bio": { "es": "", "en": "" },
+      "expValue": "",
+      "locationValue": "",
+      "langValue": "",
+      "companyValue": "",
+      "q1Title": "",
+      "q1Desc": "",
+      "q2Title": "",
+      "q2Desc": "",
+      "q3Title": "",
+      "q3Desc": "",
+      "q4Title": "",
+      "q4Desc": ""
+    },
+    "process": {
+      "step1Title": "",
+      "step1Desc": "",
+      "step2Title": "",
+      "step2Desc": "",
+      "step3Title": "",
+      "step3Desc": "",
+      "step4Title": "",
+      "step4Desc": "",
+      "step5Title": "",
+      "step5Desc": ""
+    },
+    "contact": {
+      "title": "",
+      "intro": "",
+      "email": "",
+      "linkedin": "",
+      "cal": ""
+    },
+    "footer": {
+      "pitch": ""
+    }
   },
   "availability": {
     "status": "open",

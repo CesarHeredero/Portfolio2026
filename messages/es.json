@@ -40,7 +40,7 @@
   },
   "bento": {
     "roleLabel": "Rol actual",
-    "roleValue": "Senior Product Owner",
+    "roleValue": "Senior Product Owner & UX Strategist",
     "roleCompany": "Flexicar · 2019 — Hoy",
     "metaListings": "Fichas",
     "metaListingsValue": "30K+",
@@ -51,13 +51,15 @@
     "metaProjects": "Proyectos",
     "metaProjectsValue": "8+",
     "seekingLabel": "Buscando",
+    "seekingRoles": "Lead UX, Head of Design, Staff Product Designer, Product Owner, Product Manager, Design Manager",
     "kpiValue": "28%",
     "kpiLabel": "usuarios recuperados con medición server-side",
     "clientsLabel": "Clientes pasados",
     "clientsValue": "Toyota · Hyundai · Sacyl",
     "awardLabel": "Reconocimiento",
     "awardValue": "Cardio Xplore · Ganador europeo 2017",
-    "capabilitiesLabel": "Capacidades"
+    "capabilitiesLabel": "Capacidades",
+    "capabilities": "Product Ownership, UX Strategy, SEO técnico, Server-side tracking, Design Systems, Coordinación cross"
   },
   "work": {
     "title": "Selección reciente",
@@ -79,6 +81,16 @@
   "about": {
     "title": "Sobre mí",
     "intro": "",
+    "name": "César Heredero Herranz",
+    "roleTag": "Senior PO · UX Strategist",
+    "expLabel": "Exp",
+    "expValue": "10+ años",
+    "locationLabel": "Ubicación",
+    "locationValue": "Madrid · Remoto OK",
+    "langLabel": "Idiomas",
+    "langValue": "Español",
+    "companyLabel": "Empresa",
+    "companyValue": "Flexicar",
     "bio": "Diez años en diseño y producto digital. Empecé como diseñador UX/UI consultando para Toyota, Hyundai, Sacyl, Interflora y SHAI Tajo en Devoteam. En 2017 gané a nivel europeo el hackathon Cardio Xplore organizado por Daiichi-Sankyo.\n\nDesde 2019 en Flexicar como Senior Product Owner & UX Strategist, donde lidero proyectos transversales entre producto, UX, SEO técnico y datos en un ecommerce con +30.000 fichas y presencia en España y Portugal.\n\nCoordino equipos de desarrollo, marketing, SEO, editorial e infraestructura. Mi foco: convertir producto en palancas de negocio medibles.",
     "q1Title": "Decisiones con datos",
     "q1Desc": "Mido antes de decidir. Auditorías pre/post, no opiniones.",

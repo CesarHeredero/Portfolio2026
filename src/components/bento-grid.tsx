@@ -2,26 +2,11 @@
 
 import { useTranslations } from 'next-intl';
 
-const SEEKING_ROLES = [
-  'Lead UX',
-  'Head of Design',
-  'Staff Product Designer',
-  'Product Owner',
-  'Product Manager',
-  'Design Manager',
-];
-
-const CAPABILITIES = [
-  'Product Ownership',
-  'UX Strategy',
-  'SEO técnico',
-  'Server-side tracking',
-  'Design Systems',
-  'Coordinación cross',
-];
-
 export function BentoGrid() {
   const t = useTranslations('bento');
+
+  const seekingRoles = t('seekingRoles').split(',').map((s) => s.trim()).filter(Boolean);
+  const capabilities = t('capabilities').split(',').map((s) => s.trim()).filter(Boolean);
 
   const meta = [
     { k: t('metaListings'), v: t('metaListingsValue') },
@@ -52,7 +37,7 @@ export function BentoGrid() {
         <div className="bento__cell bento__cell--accent bento__cell--md">
           <span className="bento__label">{t('seekingLabel')}</span>
           <div className="bento__pills">
-            {SEEKING_ROLES.map((r) => (
+            {seekingRoles.map((r) => (
               <span key={r} className="bento__pill">{r}</span>
             ))}
           </div>
@@ -80,7 +65,7 @@ export function BentoGrid() {
         <div className="bento__cell bento__cell--wide">
           <span className="bento__label">{t('capabilitiesLabel')}</span>
           <div className="bento__tech-list">
-            {CAPABILITIES.map((c) => (
+            {capabilities.map((c) => (
               <span key={c} className="bento__tech-item">{c}</span>
             ))}
           </div>

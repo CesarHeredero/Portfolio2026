@@ -40,7 +40,7 @@
   },
   "bento": {
     "roleLabel": "Current role",
-    "roleValue": "Senior Product Owner",
+    "roleValue": "Senior Product Owner & UX Strategist",
     "roleCompany": "Flexicar · 2019 — Now",
     "metaListings": "Listings",
     "metaListingsValue": "30K+",
@@ -51,13 +51,15 @@
     "metaProjects": "Projects",
     "metaProjectsValue": "8+",
     "seekingLabel": "Seeking",
+    "seekingRoles": "Lead UX, Head of Design, Staff Product Designer, Product Owner, Product Manager, Design Manager",
     "kpiValue": "28%",
     "kpiLabel": "users recovered with server-side tracking",
     "clientsLabel": "Past clients",
     "clientsValue": "Toyota · Hyundai · Sacyl",
     "awardLabel": "Recognition",
     "awardValue": "Cardio Xplore · European winner 2017",
-    "capabilitiesLabel": "Capabilities"
+    "capabilitiesLabel": "Capabilities",
+    "capabilities": "Product Ownership, UX Strategy, Technical SEO, Server-side tracking, Design Systems, Cross-functional coordination"
   },
   "work": {
     "title": "Recent selection",
@@ -79,6 +81,16 @@
   "about": {
     "title": "About",
     "intro": "",
+    "name": "César Heredero Herranz",
+    "roleTag": "Senior PO · UX Strategist",
+    "expLabel": "Exp",
+    "expValue": "10+ years",
+    "locationLabel": "Location",
+    "locationValue": "Madrid · Remote OK",
+    "langLabel": "Languages",
+    "langValue": "Spanish",
+    "companyLabel": "Company",
+    "companyValue": "Flexicar",
     "bio": "Ten years in design and digital product. I started as a UX/UI designer consulting for Toyota, Hyundai, Sacyl, Interflora and SHAI Tajo at Devoteam. In 2017 I won the European edition of the Cardio Xplore hackathon organized by Daiichi-Sankyo.\n\nSince 2019 at Flexicar as Senior Product Owner & UX Strategist, where I lead cross-functional projects across product, UX, technical SEO and data in an ecommerce with 30,000+ listings across Spain and Portugal.\n\nI coordinate development, marketing, SEO, editorial and infrastructure teams. My focus: turning product into measurable business levers.",
     "q1Title": "Data-driven decisions",
     "q1Desc": "I measure before deciding. Pre/post audits, not opinions.",

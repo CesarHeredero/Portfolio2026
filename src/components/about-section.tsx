@@ -24,24 +24,24 @@ export function AboutSection() {
       <div className="about__grid">
         <div className="about__id">
           <div className="about__avatar-area" aria-hidden="true">CH</div>
-          <p className="about__name">César Heredero Herranz</p>
-          <p className="about__role">Senior PO · UX Strategist</p>
+          <p className="about__name">{t('name')}</p>
+          <p className="about__role">{t('roleTag')}</p>
           <div className="about__id-table">
             <div className="about__id-row">
-              <span className="about__id-key">Exp</span>
-              <span className="about__id-val">10+ años</span>
+              <span className="about__id-key">{t('expLabel')}</span>
+              <span className="about__id-val">{t('expValue')}</span>
             </div>
             <div className="about__id-row">
-              <span className="about__id-key">Ubicación</span>
-              <span className="about__id-val">Madrid · Remoto OK</span>
+              <span className="about__id-key">{t('locationLabel')}</span>
+              <span className="about__id-val">{t('locationValue')}</span>
             </div>
             <div className="about__id-row">
-              <span className="about__id-key">Idiomas</span>
-              <span className="about__id-val">Español</span>
+              <span className="about__id-key">{t('langLabel')}</span>
+              <span className="about__id-val">{t('langValue')}</span>
             </div>
             <div className="about__id-row">
-              <span className="about__id-key">Empresa</span>
-              <span className="about__id-val">Flexicar</span>
+              <span className="about__id-key">{t('companyLabel')}</span>
+              <span className="about__id-val">{t('companyValue')}</span>
             </div>
           </div>
         </div>
