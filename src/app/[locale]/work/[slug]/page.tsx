@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { readFile } from 'fs/promises';
+import path from 'path';
 import { getCaseBySlug, CASES, type Locale } from '@/lib/content';
 import { CaseDetail } from '@/components/case-detail';
 import { Footer } from '@/components/footer';
@@ -10,9 +12,14 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  return CASES.flatMap((c) => [
-    { locale: 'en', slug: c.slug },
-  ]);
+  let statuses: Record<string, string> = {};
+  try {
+    const raw = await readFile(path.join(process.cwd(), 'content', 'status.json'), 'utf-8');
+    statuses = JSON.parse(raw) as Record<string, string>;
+  } catch { /* all published */ }
+  return CASES
+    .filter((c) => (statuses[c.id] ?? 'published') === 'published')
+    .flatMap((c) => [{ locale: 'en', slug: c.slug }]);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -68,7 +75,13 @@ export default async function CaseDetailPage({ params }: Props) {
   const { locale, slug } = await params;
   const c = getCaseBySlug(slug);
 
-  if (!c) notFound();
+  // Check draft status
+  let statuses: Record<string, string> = {};
+  try {
+    const statusRaw = await readFile(path.join(process.cwd(), 'content', 'status.json'), 'utf-8');
+    statuses = JSON.parse(statusRaw) as Record<string, string>;
+  } catch { /* all published */ }
+  if (!c || (statuses[c.id] ?? 'published') === 'draft') notFound();
 
   const l = locale as Locale;
   const t = await getTranslations({ locale, namespace: 'case' });

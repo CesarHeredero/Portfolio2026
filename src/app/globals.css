@@ -657,7 +657,7 @@ h6 {
 .hero__id-row {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
 }
 
 .hero__id-key {
@@ -1362,7 +1362,7 @@ h6 {
   font-size: var(--fs-24);
   font-weight: 700;
   color: var(--ink-900);
-  margin-bottom: var(--s-1);
+  margin-bottom: var(--s-2);
 }
 
 .about__role {
@@ -1580,6 +1580,7 @@ h6 {
   font-size: var(--fs-13);
   color: var(--ink-500);
   line-height: 1.6;
+  margin-bottom: var(--s-2);
 }
 
 .cv__skills {
@@ -1672,7 +1673,7 @@ h6 {
    ============================================================ */
 .contact__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 560px);
   gap: var(--s-9);
   align-items: start;
 }

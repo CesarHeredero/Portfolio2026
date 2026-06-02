@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { Hero } from '@/components/hero';
+
+export const revalidate = 60;
 import { BentoGrid } from '@/components/bento-grid';
 import { WorkSection } from '@/components/work-section';
 import { AboutSection } from '@/components/about-section';
