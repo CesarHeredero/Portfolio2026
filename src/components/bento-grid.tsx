@@ -1,69 +1,87 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
-import { CASES } from '@/lib/content';
 
-const TECH_STACK = [
-  'GTM', 'GA4', 'BigQuery', 'SQL', 'Schema.org',
-  'Next.js', 'TypeScript', 'Figma', 'JIRA',
+const SEEKING_ROLES = [
+  'Lead UX',
+  'Head of Design',
+  'Staff Product Designer',
+  'Product Owner',
+  'Product Manager',
+  'Design Manager',
+];
+
+const CAPABILITIES = [
+  'Product Ownership',
+  'UX Strategy',
+  'SEO técnico',
+  'Server-side tracking',
+  'Design Systems',
+  'Coordinación cross',
 ];
 
 export function BentoGrid() {
   const t = useTranslations('bento');
-  const locale = useLocale();
 
-  const totalCases = CASES.length;
-  const featuredCount = CASES.filter((c) => c.featured).length;
+  const meta = [
+    { k: t('metaListings'), v: t('metaListingsValue') },
+    { k: t('metaCountries'), v: t('metaCountriesValue') },
+    { k: t('metaTeams'), v: t('metaTeamsValue') },
+    { k: t('metaProjects'), v: t('metaProjectsValue') },
+  ];
 
   return (
     <section aria-label="Key metrics" className="bento">
       <div className="bento__grid">
-        {/* Cases count */}
-        <div className="bento__cell">
-          <span className="bento__label">{t('casesLabel')}</span>
-          <span className="bento__value">{totalCases}</span>
-          <span className="bento__hint">{featuredCount} {locale === 'es' ? 'destacados' : 'featured'}</span>
-        </div>
-
-        {/* Role cell — wide, tall */}
-        <div className="bento__cell bento__cell--wide bento__cell--tall bento__cell--dark">
+        {/* Rol actual — celda destacada oscura */}
+        <div className="bento__cell bento__cell--feat bento__cell--dark">
           <span className="bento__label">{t('roleLabel')}</span>
-          <div className="bento__role">
-            <p className="bento__role-title">{t('roleValue')}</p>
-            <div>
-              <span className="bento__role-pill">
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ok)', display: 'inline-block' }} aria-hidden="true" />
-                {t('availLabel')}
-              </span>
-            </div>
+          <p className="bento__role-title">{t('roleValue')}</p>
+          <p className="bento__role-company">{t('roleCompany')}</p>
+          <div className="bento__meta-grid">
+            {meta.map((m) => (
+              <div className="bento__meta-item" key={m.k}>
+                <span className="bento__meta-value">{m.v}</span>
+                <span className="bento__meta-key">{m.k}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Year */}
-        <div className="bento__cell">
-          <span className="bento__label">{t('yearLabel')}</span>
-          <span className="bento__value">2025</span>
+        {/* Buscando — celda acento con pills */}
+        <div className="bento__cell bento__cell--accent bento__cell--md">
+          <span className="bento__label">{t('seekingLabel')}</span>
+          <div className="bento__pills">
+            {SEEKING_ROLES.map((r) => (
+              <span key={r} className="bento__pill">{r}</span>
+            ))}
+          </div>
         </div>
 
-        {/* Domain */}
-        <div className="bento__cell">
-          <span className="bento__label">{t('domainLabel')}</span>
-          <span className="bento__value bento__value--sm">{t('domainValue')}</span>
+        {/* KPI 28% */}
+        <div className="bento__cell bento__cell--sm">
+          <span className="bento__value">{t('kpiValue')}</span>
+          <span className="bento__hint">{t('kpiLabel')}</span>
         </div>
 
-        {/* Teams */}
+        {/* Clientes pasados */}
+        <div className="bento__cell bento__cell--sm">
+          <span className="bento__label">{t('clientsLabel')}</span>
+          <span className="bento__value bento__value--sm">{t('clientsValue')}</span>
+        </div>
+
+        {/* Premio Cardio Xplore */}
+        <div className="bento__cell bento__cell--sm">
+          <span className="bento__label">{t('awardLabel')}</span>
+          <span className="bento__value bento__value--sm">🏆 {t('awardValue')}</span>
+        </div>
+
+        {/* Capacidades */}
         <div className="bento__cell bento__cell--wide">
-          <span className="bento__label">{t('teamsLabel')}</span>
-          <span className="bento__value bento__value--sm">{t('teamsValue')}</span>
-        </div>
-
-        {/* Tech stack */}
-        <div className="bento__cell bento__cell--wide">
-          <span className="bento__label">{t('techLabel')}</span>
+          <span className="bento__label">{t('capabilitiesLabel')}</span>
           <div className="bento__tech-list">
-            {TECH_STACK.map((tech) => (
-              <span key={tech} className="bento__tech-item">{tech}</span>
+            {CAPABILITIES.map((c) => (
+              <span key={c} className="bento__tech-item">{c}</span>
             ))}
           </div>
         </div>

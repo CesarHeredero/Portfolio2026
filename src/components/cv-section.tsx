@@ -1,62 +1,13 @@
-import { useTranslations } from 'next-intl';
+'use client';
 
-const SKILL_GROUPS = [
-  {
-    label: 'Product',
-    tags: ['Roadmap', 'User Stories', 'OKRs', 'Backlog', 'Sprint Planning'],
-  },
-  {
-    label: 'Data & Analytics',
-    tags: ['GA4', 'GTM', 'BigQuery', 'SQL', 'Looker Studio'],
-  },
-  {
-    label: 'SEO & WPO',
-    tags: ['Schema.org', 'Core Web Vitals', 'Sitemaps', 'Canonical', 'CrUX'],
-  },
-  {
-    label: 'Technical',
-    tags: ['Next.js', 'TypeScript', 'HTML/CSS', 'REST APIs', 'Git'],
-  },
-];
+import { useTranslations, useLocale } from 'next-intl';
+import cv from '@/../content/cv.json';
+
+type Locale = 'es' | 'en';
 
 export function CVSection() {
   const t = useTranslations('cv');
-
-  const experience = [
-    {
-      title: t('job1Title'),
-      company: t('job1Company'),
-      period: t('job1Period'),
-      desc: t('job1Desc'),
-    },
-    {
-      title: t('job2Title'),
-      company: t('job2Company'),
-      period: t('job2Period'),
-      desc: t('job2Desc'),
-    },
-    {
-      title: t('job3Title'),
-      company: t('job3Company'),
-      period: t('job3Period'),
-      desc: t('job3Desc'),
-    },
-  ];
-
-  const education = [
-    {
-      title: t('edu1Title'),
-      company: t('edu1School'),
-      period: t('edu1Period'),
-      desc: '',
-    },
-    {
-      title: t('edu2Title'),
-      company: t('edu2School'),
-      period: t('edu2Period'),
-      desc: '',
-    },
-  ];
+  const locale = useLocale() as Locale;
 
   return (
     <section className="sec" id="cv" aria-labelledby="cv-title">
@@ -72,51 +23,76 @@ export function CVSection() {
         <div>
           <p className="cv__section-label">{t('experience')}</p>
           <ul className="cv__list">
-            {experience.map((item, i) => (
-              <li key={i} className="cv__item">
-                <div className="cv__item-head">
-                  <span className="cv__item-title">{item.title}</span>
-                  <span className="cv__item-period">{item.period}</span>
-                </div>
-                <p className="cv__item-company">{item.company}</p>
-                {item.desc && <p className="cv__item-desc">{item.desc}</p>}
-              </li>
-            ))}
+            {cv.experience.map((item) => {
+              const role = locale === 'en' && 'roleEn' in item && item.roleEn ? item.roleEn : item.role;
+              const company = locale === 'en' && 'companyEn' in item && item.companyEn ? item.companyEn : item.company;
+              const period = locale === 'en' ? item.yearEn : item.year;
+              const desc = item.description[locale];
+              const award = 'award' in item && item.award ? item.award[locale] : null;
+              return (
+                <li key={item.id} className="cv__item">
+                  <div className="cv__item-head">
+                    <span className="cv__item-title">{role}</span>
+                    <span className="cv__item-period">{period}</span>
+                  </div>
+                  <p className="cv__item-company">{company}</p>
+                  {desc && <p className="cv__item-desc">{desc}</p>}
+                  {award && <p className="cv__item-award">🏆 {award}</p>}
+                  {item.tags && (
+                    <div className="cv__item-tags">
+                      {item.tags.map((tag) => (
+                        <span key={tag} className="tag tag--sm">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
-          <p className="cv__section-label">{t('education')}</p>
-          <ul className="cv__list">
-            {education.map((item, i) => (
-              <li key={i} className="cv__item">
-                <div className="cv__item-head">
-                  <span className="cv__item-title">{item.title}</span>
-                  <span className="cv__item-period">{item.period}</span>
-                </div>
-                <p className="cv__item-company">{item.company}</p>
-              </li>
-            ))}
+          <p className="cv__section-label">{t('otherRoles')}</p>
+          <ul className="cv__list cv__list--compact">
+            {cv.otherRoles.map((item, i) => {
+              const role = locale === 'en' ? item.roleEn : item.role;
+              return (
+                <li key={i} className="cv__item cv__item--compact">
+                  <div className="cv__item-head">
+                    <span className="cv__item-title">{role}</span>
+                    <span className="cv__item-period">{item.year}</span>
+                  </div>
+                  <p className="cv__item-company">{item.company}</p>
+                </li>
+              );
+            })}
           </ul>
 
-          <a
-            href="#"
-            className="btn btn--ghost"
-            aria-label={t('downloadCV')}
-            download
-          >
+          <a href="/cv.pdf" className="btn btn--ghost" aria-label={t('downloadCV')} download>
             ↓ {t('downloadCV')}
           </a>
         </div>
 
         <aside className="cv__skills" aria-label={t('skills')}>
           <p className="cv__section-label" style={{ marginBottom: 'var(--s-5)' }}>{t('skills')}</p>
-          {SKILL_GROUPS.map((group) => (
-            <div key={group.label} className="cv__skill-group">
-              <p className="cv__skill-group-label">{group.label}</p>
+          {cv.skills.map((group) => (
+            <div key={group.group} className="cv__skill-group">
+              <p className="cv__skill-group-label">{group.group}</p>
               <div className="cv__skill-tags">
-                {group.tags.map((tag) => (
+                {group.items.map((tag) => (
                   <span key={tag} className="tag">{tag}</span>
                 ))}
               </div>
+            </div>
+          ))}
+
+          <p className="cv__section-label" style={{ margin: 'var(--s-6) 0 var(--s-5)' }}>{t('education')}</p>
+          {cv.education.map((group) => (
+            <div key={group.group} className="cv__skill-group">
+              <p className="cv__skill-group-label">{group.group}</p>
+              <ul className="cv__edu-list" role="list">
+                {group.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </div>
           ))}
         </aside>

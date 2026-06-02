@@ -1,20 +1,16 @@
 import { useTranslations } from 'next-intl';
 
-const STACK_ITEMS = [
-  'GTM', 'GA4', 'BigQuery', 'SQL',
-  'Schema.org', 'Next.js', 'TypeScript',
-  'HTML/CSS', 'Figma', 'JIRA', 'Looker Studio',
-];
-
 export function AboutSection() {
   const t = useTranslations('about');
 
   const qualities = [
-    { icon: '⚡', text: t('q1') },
-    { icon: '📊', text: t('q2') },
-    { icon: '👥', text: t('q3') },
-    { icon: '💻', text: t('q4') },
+    { title: t('q1Title'), desc: t('q1Desc') },
+    { title: t('q2Title'), desc: t('q2Desc') },
+    { title: t('q3Title'), desc: t('q3Desc') },
+    { title: t('q4Title'), desc: t('q4Desc') },
   ];
+
+  const bioParagraphs = t('bio').split('\n\n');
 
   return (
     <section className="sec" id="about" aria-labelledby="about-title">
@@ -22,55 +18,45 @@ export function AboutSection() {
         <span className="sec__num">03</span>
         <div>
           <h2 id="about-title" className="sec__title">{t('title')}</h2>
-          <p className="sec__intro">{t('intro')}</p>
         </div>
       </div>
 
       <div className="about__grid">
         <div className="about__id">
           <div className="about__avatar-area" aria-hidden="true">CH</div>
-          <p className="about__name">César Heredero</p>
-          <p className="about__role">Senior Product Owner</p>
+          <p className="about__name">César Heredero Herranz</p>
+          <p className="about__role">Senior PO · UX Strategist</p>
           <div className="about__id-table">
             <div className="about__id-row">
-              <span className="about__id-key">Location</span>
-              <span className="about__id-val">Madrid, Spain</span>
+              <span className="about__id-key">Exp</span>
+              <span className="about__id-val">10+ años</span>
             </div>
             <div className="about__id-row">
-              <span className="about__id-key">Focus</span>
-              <span className="about__id-val">Product · SEO · Data</span>
+              <span className="about__id-key">Ubicación</span>
+              <span className="about__id-val">Madrid · Remoto OK</span>
             </div>
             <div className="about__id-row">
-              <span className="about__id-key">Since</span>
-              <span className="about__id-val">2016</span>
+              <span className="about__id-key">Idiomas</span>
+              <span className="about__id-val">Español</span>
             </div>
             <div className="about__id-row">
-              <span className="about__id-key">Email</span>
-              <span className="about__id-val">
-                <a href="mailto:heredero.cesar@gmail.com" style={{ color: 'var(--accent)' }}>
-                  heredero.cesar@gmail.com
-                </a>
-              </span>
+              <span className="about__id-key">Empresa</span>
+              <span className="about__id-val">Flexicar</span>
             </div>
           </div>
         </div>
 
         <div>
-          <p className="about__copy">{t('bio')}</p>
+          {bioParagraphs.map((p, i) => (
+            <p key={i} className="about__copy">{p}</p>
+          ))}
 
           <div className="about__qualities">
             {qualities.map((q, i) => (
               <div key={i} className="about__quality">
-                <span className="about__quality-icon" aria-hidden="true">{q.icon}</span>
-                <span>{q.text}</span>
+                <span className="about__quality-title">{q.title}</span>
+                <span className="about__quality-desc">{q.desc}</span>
               </div>
-            ))}
-          </div>
-
-          <p className="about__stack-label">{t('stack')}</p>
-          <div className="about__stack-list">
-            {STACK_ITEMS.map((item) => (
-              <span key={item} className="tag">{item}</span>
             ))}
           </div>
         </div>
