@@ -51,7 +51,27 @@ nano .env                          # rellena los valores reales
 sudo docker compose up -d --build
 ```
 
-### Actualizaciones
+### ⚡ Actualizar el portfolio (copiar y pegar tal cual)
+```bash
+cd ~/portfolio2026 && git pull origin claude/design-handoff-lAbGI && sudo docker compose up -d --build app
+```
+
+### Ver si está funcionando
+```bash
+sudo docker compose ps
+```
+
+### Ver errores si algo falla
+```bash
+sudo docker logs -f portfolio2026-app-1 --tail=50
+```
+
+### Si hay error 502 o la web no carga
+```bash
+free -h && sudo docker compose down && sudo docker compose up -d --build app
+```
+
+### Actualizaciones (rama main, cuando se mergee)
 ```bash
 cd ~/portfolio2026
 git pull origin main
