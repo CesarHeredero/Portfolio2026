@@ -70,6 +70,9 @@
     },
     "footer": {
       "pitch": ""
+    },
+    "statusBar": {
+      "role": ""
     }
   },
   "availability": {

@@ -56,6 +56,7 @@ type SiteContent = {
       cal?: string;
     };
     footer?: { pitch?: string };
+    statusBar?: { role?: string };
   };
 };
 
@@ -136,6 +137,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
       applyStr(messages.contact, 'cal', ov.contact?.cal);
       // footer
       applyStr(messages.footer, 'pitch', ov.footer?.pitch);
+      // statusBar
+      applyStr(messages.statusBar, 'role', ov.statusBar?.role);
     }
   } catch {
     /* no overrides */

@@ -51,6 +51,7 @@ type SiteData = {
     };
     contact?: { title?: string; intro?: string; email?: string; linkedin?: string; cal?: string };
     footer?: { pitch?: string };
+    statusBar?: { role?: string };
   };
   availability?: { status?: string };
 };
@@ -119,12 +120,52 @@ function Row({ children }: { children: React.ReactNode }) {
   return <div className="adm__field-row">{children}</div>;
 }
 
+function TranslateBtn({ onTranslate, loading }: { onTranslate: () => void; loading: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onTranslate}
+      disabled={loading}
+      title="Traducir al inglés automáticamente"
+      style={{
+        alignSelf: 'flex-end', marginBottom: 2, padding: '4px 10px',
+        fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: '0.04em',
+        background: 'var(--accent-bg)', color: 'var(--accent-2)',
+        border: '1px solid var(--accent)', borderRadius: 'var(--r-2)',
+        cursor: loading ? 'wait' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+      }}
+    >
+      {loading ? '…' : '→ EN'}
+    </button>
+  );
+}
+
 export function ProfileSection() {
   const [tab, setTab] = useState<Tab>('hero');
   const [site, setSite] = useState<SiteData | null>(null);
   const [cv, setCv] = useState<CvData | null>(null);
 
+  // ── Traducción ────────────────────────────────────────────────────────────
+  const [translating, setTranslating] = useState(false);
+
+  const translate = useCallback(async (text: string, setTarget: (v: string) => void) => {
+    if (!text.trim()) return;
+    setTranslating(true);
+    try {
+      const res = await fetch('/api/admin/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      const data = (await res.json()) as { translated?: string };
+      if (data.translated) setTarget(data.translated);
+    } catch { /* ignore */ } finally {
+      setTranslating(false);
+    }
+  }, []);
+
   // ── Hero ──────────────────────────────────────────────────────────────────
+  const [statusBarRole, setStatusBarRole] = useState('');
   const [heroPretitle, setHeroPretitle] = useState('');
   const [heroTitle, setHeroTitle] = useState('');
   const [heroTitleEn, setHeroTitleEn] = useState('');
@@ -194,6 +235,7 @@ export function ProfileSection() {
       const data = (await res.json()) as SiteData;
       setSite(data);
       const c = data.content;
+      setStatusBarRole(c?.statusBar?.role ?? '');
       setHeroPretitle(c?.hero?.pretitle ?? '');
       setHeroTitle(c?.hero?.title?.es ?? '');
       setHeroTitleEn(c?.hero?.title?.en ?? '');
@@ -346,6 +388,14 @@ export function ProfileSection() {
                 <StatusEditor current={site?.availability?.status ?? 'open'} />
                 <div className="adm__field-hint">Aparece en la barra superior y en el hero. Los cambios se aplican al instante.</div>
               </Field>
+              <Field label="CARGO PRINCIPAL · aparece en el header y en la tarjeta del hero" hint={hint}>
+                <input
+                  value={statusBarRole}
+                  onChange={(e) => { setStatusBarRole(e.target.value); setHeroRole(e.target.value); }}
+                  placeholder="Senior Product Owner & UX Strategist"
+                />
+                <div className="adm__field-hint" style={{ color: 'var(--accent-2)' }}>Este campo actualiza a la vez el header (barra superior) y la tarjeta del hero.</div>
+              </Field>
               <Field label="PRETÍTULO" hint={hint}>
                 <input value={heroPretitle} onChange={(e) => setHeroPretitle(e.target.value)} placeholder="PORTFOLIO · v2.0" />
               </Field>
@@ -353,6 +403,7 @@ export function ProfileSection() {
                 <Field label="TÍTULO · ES" hint={hint}>
                   <textarea value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Convierto producto en palancas de negocio medibles." />
                 </Field>
+                <TranslateBtn onTranslate={() => void translate(heroTitle, setHeroTitleEn)} loading={translating} />
                 <Field label="TÍTULO · EN" hint={hint}>
                   <textarea value={heroTitleEn} onChange={(e) => setHeroTitleEn(e.target.value)} placeholder="I turn product into measurable business levers." />
                 </Field>
@@ -361,6 +412,7 @@ export function ProfileSection() {
                 <Field label="SUBTÍTULO · ES" hint={hint}>
                   <textarea value={heroSub} onChange={(e) => setHeroSub(e.target.value)} style={{ minHeight: 90 }} />
                 </Field>
+                <TranslateBtn onTranslate={() => void translate(heroSub, setHeroSubEn)} loading={translating} />
                 <Field label="SUBTÍTULO · EN" hint={hint}>
                   <textarea value={heroSubEn} onChange={(e) => setHeroSubEn(e.target.value)} style={{ minHeight: 90 }} />
                 </Field>
@@ -369,9 +421,6 @@ export function ProfileSection() {
                 <input value={heroIdName} onChange={(e) => setHeroIdName(e.target.value)} placeholder="César Heredero Herranz" />
               </Field>
               <Row>
-                <Field label="ROL (tarjeta)" hint={hint}>
-                  <input value={heroRole} onChange={(e) => setHeroRole(e.target.value)} placeholder="Senior PO · UX Strategist" />
-                </Field>
                 <Field label="EXPERIENCIA (tarjeta)" hint={hint}>
                   <input value={heroExp} onChange={(e) => setHeroExp(e.target.value)} placeholder="10+ años" />
                 </Field>
@@ -396,11 +445,12 @@ export function ProfileSection() {
                 error={errorTab.hero ?? ''}
                 onSave={() => void save('hero', {
                   content: {
+                    statusBar: { role: statusBarRole },
                     hero: {
                       pretitle: heroPretitle,
                       title: { es: heroTitle, en: heroTitleEn },
                       sub: { es: heroSub, en: heroSubEn },
-                      idName: heroIdName, roleValue: heroRole,
+                      idName: heroIdName, roleValue: statusBarRole,
                       expValue: heroExp, locationValue: heroLocation,
                       cta1: heroCta1, cta2: heroCta2, cta3: heroCta3,
                     },
@@ -492,6 +542,7 @@ export function ProfileSection() {
                 <Field label="BIO · ES (párrafos separados por línea en blanco)" hint={hint}>
                   <textarea value={bio} onChange={(e) => setBio(e.target.value)} style={{ minHeight: 160 }} />
                 </Field>
+                <TranslateBtn onTranslate={() => void translate(bio, setBioEn)} loading={translating} />
                 <Field label="BIO · EN" hint={hint}>
                   <textarea value={bioEn} onChange={(e) => setBioEn(e.target.value)} style={{ minHeight: 160 }} />
                 </Field>
