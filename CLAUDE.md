@@ -32,6 +32,10 @@ sudo docker logs -f [nombre]       # logs en tiempo real
 free -h                            # salud de memoria
 ```
 
+## Regla de comunicación con el usuario
+
+César no sabe programación. Siempre que se haga un push con cambios, incluir al final de la respuesta los comandos VPS para aplicarlos, numerados y listos para copiar y pegar. Sin explicaciones técnicas innecesarias, solo los comandos en orden.
+
 ## Stack del proyecto
 - Next.js 15 App Router + SSG, React 19, TypeScript strict
 - next-intl i18n: rutas /es/* y /en/*, español por defecto
