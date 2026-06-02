@@ -16,7 +16,7 @@ export function CaseCard({
   readCaseLabel = 'Read',
   featuredLabel = 'Featured',
 }: Props) {
-  const pia = PIA_SUMMARY[case_.id]?.[locale];
+  const pia = case_.pia?.[locale] ?? PIA_SUMMARY[case_.id]?.[locale];
   const href = `/${locale}${workPath}/${case_.slug}`;
 
   return (

@@ -2,58 +2,94 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { AdmIcon } from '../icons';
-import { CASES, type Locale } from '@/lib/content';
+import type { Case, ImpactType, KPI } from '@/lib/content';
 
 type Status = 'published' | 'draft';
 type Filter = 'all' | Status;
 
-type CaseWithStatus = typeof CASES[number] & { status: Status; order: number };
+const IMPACT_TYPES: ImpactType[] = ['content', 'data', 'seo', 'ux', 'product', 'performance'];
 
 export function CasesSection() {
-  const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const loadStatuses = useCallback(async () => {
+  const loadCases = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/admin/status');
-      const data = await res.json() as Record<string, Status>;
-      setStatuses(data);
+      const res = await fetch('/api/admin/cases');
+      const data = (await res.json()) as Case[];
+      setCases(data);
     } catch {
-      // defaults to published for all
+      setCases([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { void loadStatuses(); }, [loadStatuses]);
+  useEffect(() => {
+    void loadCases();
+  }, [loadCases]);
 
-  const items: CaseWithStatus[] = CASES.map((c, i) => ({
-    ...c,
-    status: statuses[c.id] ?? 'published',
-    order: i + 1,
-  }));
-
-  const shown = filter === 'all' ? items : items.filter((c) => c.status === filter);
+  const shown =
+    filter === 'all'
+      ? cases
+      : cases.filter((c) => (c.status ?? 'published') === filter);
   const counts = {
-    all: items.length,
-    published: items.filter((c) => c.status === 'published').length,
-    draft: items.filter((c) => c.status === 'draft').length,
+    all: cases.length,
+    published: cases.filter((c) => (c.status ?? 'published') === 'published').length,
+    draft: cases.filter((c) => (c.status ?? 'published') === 'draft').length,
   };
 
   async function toggleStatus(id: string, current: Status) {
     const next: Status = current === 'published' ? 'draft' : 'published';
     setSaving(id);
     try {
-      const res = await fetch('/api/admin/status', {
+      const res = await fetch('/api/admin/cases', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: next }),
       });
       if (res.ok) {
-        setStatuses((prev) => ({ ...prev, [id]: next }));
+        setCases((prev) => prev.map((c) => (c.id === id ? { ...c, status: next } : c)));
+      }
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function createCase() {
+    const slug = `nuevo-caso-${Date.now()}`;
+    setSaving('__new__');
+    try {
+      const res = await fetch('/api/admin/cases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, title: { es: 'Nuevo caso' } }),
+      });
+      if (res.ok) {
+        const created = (await res.json()) as Case;
+        await loadCases();
+        setEditingId(created.id);
+      }
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function deleteCase(id: string, title: string) {
+    if (!window.confirm(`¿Eliminar el caso "${title}"? Esta acción no se puede deshacer.`)) return;
+    setSaving(id);
+    try {
+      const res = await fetch('/api/admin/cases', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setCases((prev) => prev.filter((c) => c.id !== id));
       }
     } finally {
       setSaving(null);
@@ -61,20 +97,33 @@ export function CasesSection() {
   }
 
   if (editingId) {
-    return <CaseEditor id={editingId} status={statuses[editingId] ?? 'published'} onBack={() => setEditingId(null)} onStatusChange={(id, s) => setStatuses(prev => ({ ...prev, [id]: s }))} />;
+    const editing = cases.find((c) => c.id === editingId);
+    if (editing) {
+      return (
+        <CaseEditor
+          case_={editing}
+          onBack={() => setEditingId(null)}
+          onSaved={() => void loadCases()}
+        />
+      );
+    }
+    setEditingId(null);
   }
 
   return (
     <div className="adm__panel">
       <div className="adm__panel-head">
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span className="adm__panel-title">{items.length} casos</span>
+          <span className="adm__panel-title">{cases.length} casos</span>
           <div className="seg" style={{ marginLeft: 8 }}>
             <button aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>TODOS · {counts.all}</button>
             <button aria-pressed={filter === 'published'} onClick={() => setFilter('published')}>PUBLICADOS · {counts.published}</button>
             <button aria-pressed={filter === 'draft'} onClick={() => setFilter('draft')}>BORRADOR · {counts.draft}</button>
           </div>
         </div>
+        <button className="btn btn--accent" onClick={() => void createCase()} disabled={saving === '__new__'}>
+          {saving === '__new__' ? 'Creando…' : '+ Nuevo caso'}
+        </button>
       </div>
 
       {loading ? (
@@ -90,38 +139,42 @@ export function CasesSection() {
               <th style={{ width: 160 }}>Categoría</th>
               <th style={{ width: 70 }}>Año</th>
               <th style={{ width: 140 }}>Estado</th>
-              <th style={{ width: 80 }} aria-label="Acciones"></th>
+              <th style={{ width: 110 }} aria-label="Acciones"></th>
             </tr>
           </thead>
           <tbody>
-            {shown.map((c) => (
-              <tr key={c.id}>
-                <td className="num" style={{ color: 'var(--ink-500)', fontFamily: 'var(--font-mono)' }}>{String(c.order).padStart(2, '0')}</td>
-                <td>
-                  <div style={{ fontWeight: 500 }}>{c.title.es}</div>
-                  <div style={{ fontSize: 11, color: 'var(--ink-500)', marginTop: 2 }}>{c.id}</div>
-                </td>
-                <td style={{ color: 'var(--ink-500)', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.04em' }}>{c.category.es}</td>
-                <td className="num">{c.year}</td>
-                <td>
-                  <button
-                    className={`adm-status adm-status--${c.status}`}
-                    onClick={() => void toggleStatus(c.id, c.status)}
-                    disabled={saving === c.id}
-                    style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
-                    title={c.status === 'published' ? 'Clic para despublicar' : 'Clic para publicar'}
-                  >
-                    {saving === c.id ? '…' : c.status === 'published' ? 'PUBLICADO' : 'BORRADOR'}
-                  </button>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
-                    <button className="icon-btn" onClick={() => setEditingId(c.id)} title="Editar"><AdmIcon.edit /></button>
-                    <a className="icon-btn" href={`/es/trabajo/${c.slug}`} target="_blank" rel="noreferrer" title="Ver"><AdmIcon.eye /></a>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {shown.map((c, i) => {
+              const status: Status = c.status ?? 'published';
+              return (
+                <tr key={c.id}>
+                  <td className="num" style={{ color: 'var(--ink-500)', fontFamily: 'var(--font-mono)' }}>{String(i + 1).padStart(2, '0')}</td>
+                  <td>
+                    <div style={{ fontWeight: 500 }}>{c.title.es}</div>
+                    <div style={{ fontSize: 11, color: 'var(--ink-500)', marginTop: 2 }}>{c.id}</div>
+                  </td>
+                  <td style={{ color: 'var(--ink-500)', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.04em' }}>{c.category.es}</td>
+                  <td className="num">{c.year}</td>
+                  <td>
+                    <button
+                      className={`adm-status adm-status--${status}`}
+                      onClick={() => void toggleStatus(c.id, status)}
+                      disabled={saving === c.id}
+                      style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
+                      title={status === 'published' ? 'Clic para despublicar' : 'Clic para publicar'}
+                    >
+                      {saving === c.id ? '…' : status === 'published' ? 'PUBLICADO' : 'BORRADOR'}
+                    </button>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                      <button className="icon-btn" onClick={() => setEditingId(c.id)} title="Editar"><AdmIcon.edit /></button>
+                      <a className="icon-btn" href={`/es/trabajo/${c.slug}`} target="_blank" rel="noreferrer" title="Ver"><AdmIcon.eye /></a>
+                      <button className="icon-btn" onClick={() => void deleteCase(c.id, c.title.es)} title="Eliminar" disabled={saving === c.id}>✕</button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
@@ -129,28 +182,131 @@ export function CasesSection() {
   );
 }
 
-function CaseEditor({ id, status, onBack, onStatusChange }: { id: string; status: Status; onBack: () => void; onStatusChange: (id: string, s: Status) => void }) {
-  const c = CASES.find((x) => x.id === id) ?? CASES[0];
+type EditState = {
+  slug: string;
+  categoryEs: string;
+  year: string;
+  titleEs: string;
+  teaserEs: string;
+  tags: string;
+  impactType: ImpactType;
+  featured: boolean;
+  status: Status;
+  piaProblem: string;
+  piaAction: string;
+  piaImpact: string;
+  kpis: { value: string; labelEs: string }[];
+};
+
+function seedState(c: Case): EditState {
+  return {
+    slug: c.slug,
+    categoryEs: c.category.es,
+    year: c.year,
+    titleEs: c.title.es,
+    teaserEs: c.teaser.es,
+    tags: c.tags.join(', '),
+    impactType: c.impactType,
+    featured: c.featured ?? false,
+    status: c.status ?? 'published',
+    piaProblem: c.pia?.es.problem ?? '',
+    piaAction: c.pia?.es.action ?? '',
+    piaImpact: c.pia?.es.impact ?? '',
+    kpis: c.kpis.map((k) => ({ value: k.value, labelEs: k.label.es })),
+  };
+}
+
+function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => void; onSaved: () => void }) {
   const [tab, setTab] = useState<'content' | 'kpis' | 'meta'>('content');
   const [saving, setSaving] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState<Status>(status);
-  const l: Locale = 'es';
+  const [success, setSuccess] = useState(false);
+  const [state, setState] = useState<EditState>(() => seedState(case_));
+  const [status, setStatus] = useState<Status>(case_.status ?? 'published');
 
-  async function handleStatusChange(next: Status) {
+  function update<K extends keyof EditState>(key: K, value: EditState[K]) {
+    setState((s) => ({ ...s, [key]: value }));
+    setSuccess(false);
+  }
+
+  function buildCase(): Case {
+    const kpis: KPI[] = state.kpis
+      .filter((k) => k.value.trim() || k.labelEs.trim())
+      .map((k) => {
+        const orig = case_.kpis.find((o) => o.value === k.value);
+        return {
+          value: k.value,
+          label: { es: k.labelEs, en: orig?.label.en ?? k.labelEs },
+        };
+      });
+    return {
+      ...case_,
+      slug: state.slug,
+      category: { es: state.categoryEs, en: case_.category.en || state.categoryEs },
+      year: state.year,
+      title: { es: state.titleEs, en: case_.title.en || state.titleEs },
+      teaser: { es: state.teaserEs, en: case_.teaser.en || state.teaserEs },
+      tags: state.tags.split(',').map((t) => t.trim()).filter(Boolean),
+      impactType: state.impactType,
+      featured: state.featured,
+      status,
+      kpis,
+      pia: {
+        es: { problem: state.piaProblem, action: state.piaAction, impact: state.piaImpact },
+        en: case_.pia?.en ?? { problem: state.piaProblem, action: state.piaAction, impact: state.piaImpact },
+      },
+    };
+  }
+
+  async function handleSave() {
     setSaving(true);
+    setSuccess(false);
     try {
-      const res = await fetch('/api/admin/status', {
-        method: 'PATCH',
+      const res = await fetch('/api/admin/cases', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: c.id, status: next }),
+        body: JSON.stringify(buildCase()),
       });
       if (res.ok) {
-        setCurrentStatus(next);
-        onStatusChange(c.id, next);
+        setSuccess(true);
+        onSaved();
       }
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleStatusChange(next: Status) {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/cases', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: case_.id, status: next }),
+      });
+      if (res.ok) {
+        setStatus(next);
+        onSaved();
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function setKpi(i: number, field: 'value' | 'labelEs', value: string) {
+    setState((s) => ({
+      ...s,
+      kpis: s.kpis.map((k, idx) => (idx === i ? { ...k, [field]: value } : k)),
+    }));
+    setSuccess(false);
+  }
+
+  function addKpi() {
+    if (state.kpis.length >= 4) return;
+    update('kpis', [...state.kpis, { value: '', labelEs: '' }]);
+  }
+
+  function removeKpi(i: number) {
+    update('kpis', state.kpis.filter((_, idx) => idx !== i));
   }
 
   return (
@@ -158,25 +314,25 @@ function CaseEditor({ id, status, onBack, onStatusChange }: { id: string; status
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button className="btn btn--ghost" onClick={onBack}>← Volver a casos</button>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span className={`adm-status adm-status--${currentStatus}`}>
-            {currentStatus === 'published' ? 'PUBLICADO' : 'BORRADOR'}
+          <span className={`adm-status adm-status--${status}`}>
+            {status === 'published' ? 'PUBLICADO' : 'BORRADOR'}
           </span>
-          {currentStatus === 'published' ? (
+          {status === 'published' ? (
             <button className="btn btn--ghost" onClick={() => void handleStatusChange('draft')} disabled={saving}>
               Despublicar
             </button>
           ) : (
             <button className="btn btn--accent" onClick={() => void handleStatusChange('published')} disabled={saving}>
-              {saving ? 'Guardando…' : 'Publicar'}
+              Publicar
             </button>
           )}
         </div>
       </div>
 
       <div className="adm__tabs">
-        {(['content', 'kpis', 'meta'] as const).map((t) => (
-          <button key={t} className={`adm__tab ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>
-            {t === 'content' ? 'Contenido' : t === 'kpis' ? 'KPIs' : 'Metadata'}
+        {(['content', 'kpis', 'meta'] as const).map((tk) => (
+          <button key={tk} className={`adm__tab ${tab === tk ? 'on' : ''}`} onClick={() => setTab(tk)}>
+            {tk === 'content' ? 'Contenido' : tk === 'kpis' ? 'KPIs' : 'Metadata'}
           </button>
         ))}
       </div>
@@ -187,34 +343,43 @@ function CaseEditor({ id, status, onBack, onStatusChange }: { id: string; status
             <div className="adm__form">
               <div className="adm__field">
                 <label>SLUG</label>
-                <input value={c.slug} readOnly />
-                <div className="adm__field-hint">URL: cesarheredero.com/trabajo/{c.slug}</div>
+                <input value={state.slug} onChange={(e) => update('slug', e.target.value)} readOnly />
+                <div className="adm__field-hint">URL: cesarheredero.com/trabajo/{state.slug}</div>
               </div>
               <div className="adm__field-row">
                 <div className="adm__field">
                   <label>CATEGORÍA · ES</label>
-                  <input defaultValue={c.category.es} readOnly />
+                  <input value={state.categoryEs} onChange={(e) => update('categoryEs', e.target.value)} />
                 </div>
                 <div className="adm__field">
                   <label>AÑO</label>
-                  <input defaultValue={c.year} readOnly />
+                  <input value={state.year} onChange={(e) => update('year', e.target.value)} />
                 </div>
               </div>
               <div className="adm__field">
                 <label>TÍTULO · ES</label>
-                <input defaultValue={c.title.es} readOnly />
+                <input value={state.titleEs} onChange={(e) => update('titleEs', e.target.value)} />
               </div>
               <div className="adm__field">
                 <label>TEASER · ES</label>
-                <textarea defaultValue={c.teaser[l]} readOnly />
+                <textarea value={state.teaserEs} onChange={(e) => update('teaserEs', e.target.value)} />
               </div>
               <div className="adm__field">
                 <label>TAGS (separados por coma)</label>
-                <input defaultValue={c.tags.join(', ')} readOnly />
+                <input value={state.tags} onChange={(e) => update('tags', e.target.value)} />
               </div>
-              <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>
-                Los campos de contenido se editan directamente en el repositorio (content.ts). La función de edición in-line está en desarrollo.
-              </p>
+              <div className="adm__field">
+                <label>PIA · PROBLEMA (ES)</label>
+                <textarea value={state.piaProblem} onChange={(e) => update('piaProblem', e.target.value)} />
+              </div>
+              <div className="adm__field">
+                <label>PIA · ACCIÓN (ES)</label>
+                <textarea value={state.piaAction} onChange={(e) => update('piaAction', e.target.value)} />
+              </div>
+              <div className="adm__field">
+                <label>PIA · IMPACTO (ES)</label>
+                <textarea value={state.piaImpact} onChange={(e) => update('piaImpact', e.target.value)} />
+              </div>
             </div>
           )}
 
@@ -222,13 +387,17 @@ function CaseEditor({ id, status, onBack, onStatusChange }: { id: string; status
             <div className="adm__form">
               <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>Hasta 4 KPIs por caso. Se muestran en la tarjeta y en el detalle.</p>
               <div className="adm__kpi-list">
-                {c.kpis.map((k, i) => (
-                  <div key={i} className="adm__kpi-row">
-                    <input defaultValue={k.value} readOnly placeholder="Valor" />
-                    <input defaultValue={k.label.es} readOnly placeholder="Etiqueta ES" />
+                {state.kpis.map((k, i) => (
+                  <div key={i} className="adm__kpi-row" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input value={k.value} onChange={(e) => setKpi(i, 'value', e.target.value)} placeholder="Valor" />
+                    <input value={k.labelEs} onChange={(e) => setKpi(i, 'labelEs', e.target.value)} placeholder="Etiqueta ES" />
+                    <button className="icon-btn" onClick={() => removeKpi(i)} title="Eliminar KPI">✕</button>
                   </div>
                 ))}
               </div>
+              {state.kpis.length < 4 && (
+                <button className="btn btn--ghost" onClick={addKpi}>+ Añadir KPI</button>
+              )}
             </div>
           )}
 
@@ -236,25 +405,34 @@ function CaseEditor({ id, status, onBack, onStatusChange }: { id: string; status
             <div className="adm__form">
               <div className="adm__field">
                 <label>ESTADO</label>
-                <select
-                  value={currentStatus}
-                  onChange={(e) => void handleStatusChange(e.target.value as Status)}
-                  disabled={saving}
-                >
+                <select value={status} onChange={(e) => void handleStatusChange(e.target.value as Status)} disabled={saving}>
                   <option value="published">Publicado</option>
                   <option value="draft">Borrador</option>
                 </select>
               </div>
               <div className="adm__field">
-                <label>META TITLE</label>
-                <input defaultValue={c.title.es} readOnly />
+                <label>TIPO DE IMPACTO</label>
+                <select value={state.impactType} onChange={(e) => update('impactType', e.target.value as ImpactType)}>
+                  {IMPACT_TYPES.map((it) => (
+                    <option key={it} value={it}>{it}</option>
+                  ))}
+                </select>
               </div>
               <div className="adm__field">
-                <label>META DESCRIPTION</label>
-                <textarea defaultValue={c.teaser.es} readOnly />
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={state.featured} onChange={(e) => update('featured', e.target.checked)} style={{ width: 'auto' }} />
+                  Destacado (featured)
+                </label>
               </div>
             </div>
           )}
+
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16 }}>
+            <button className="btn btn--accent" onClick={() => void handleSave()} disabled={saving}>
+              {saving ? 'Guardando…' : 'Guardar'}
+            </button>
+            {success && <span style={{ fontSize: 12, color: 'var(--accent)' }}>✓ Guardado</span>}
+          </div>
         </div>
       </div>
     </>

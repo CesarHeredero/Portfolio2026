@@ -13,6 +13,12 @@ export type ImpactType =
   | 'product'
   | 'performance';
 
+export type PIASummary = {
+  problem: string;
+  action: string;
+  impact: string;
+};
+
 export type Case = {
   id: string;
   slug: string;
@@ -24,12 +30,8 @@ export type Case = {
   tags: string[];
   impactType: ImpactType;
   featured?: boolean;
-};
-
-export type PIASummary = {
-  problem: string;
-  action: string;
-  impact: string;
+  status?: 'published' | 'draft';
+  pia?: { es: PIASummary; en: PIASummary };
 };
 
 export const CASES: Case[] = [

@@ -9,6 +9,11 @@
   "readCv": "https://read.cv/cesarheredero",
   "cal": "https://cal.com/cesarheredero",
   "baseUrl": "https://cesarheredero.com",
+  "content": {
+    "hero": { "title": { "es": "", "en": "" }, "sub": { "es": "", "en": "" } },
+    "about": { "bio": { "es": "", "en": "" } },
+    "contact": { "email": "", "linkedin": "", "cal": "" }
+  },
   "availability": {
     "status": "open",
     "options": [

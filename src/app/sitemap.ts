@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { CASES } from '@/lib/content';
+import { loadPublishedCases } from '@/lib/content-store';
 
 const BASE = 'https://cesarheredero.com';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const cases = await loadPublishedCases();
 
   const staticEs: MetadataRoute.Sitemap = [
     { url: `${BASE}/es`, lastModified: now, changeFrequency: 'monthly', priority: 1 },
@@ -16,14 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/en/#work`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
   ];
 
-  const casesEs: MetadataRoute.Sitemap = CASES.map((c) => ({
+  const casesEs: MetadataRoute.Sitemap = cases.map((c) => ({
     url: `${BASE}/es/trabajo/${c.slug}`,
     lastModified: now,
     changeFrequency: 'yearly' as const,
     priority: 0.7,
   }));
 
-  const casesEn: MetadataRoute.Sitemap = CASES.map((c) => ({
+  const casesEn: MetadataRoute.Sitemap = cases.map((c) => ({
     url: `${BASE}/en/work/${c.slug}`,
     lastModified: now,
     changeFrequency: 'yearly' as const,

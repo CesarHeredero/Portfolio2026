@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { AdmIcon } from '../icons';
+import { useState, useEffect, useCallback } from 'react';
+import type { CvData, CvExperience } from '@/components/cv-section';
 
 type Tab = 'hero' | 'about' | 'cv' | 'contact';
 
@@ -16,8 +16,38 @@ const STATUS_OPTIONS = [
   { id: 'hidden', l: 'Ocultar badge', d: 'No mostrar estado en el portfolio', tone: 'off' },
 ];
 
-function StatusEditor() {
-  const [status, setStatus] = useState('open');
+type SiteData = {
+  content?: {
+    hero?: { title?: { es?: string }; sub?: { es?: string } };
+    about?: { bio?: { es?: string } };
+    contact?: { email?: string; linkedin?: string; cal?: string };
+  };
+  availability?: { status?: string };
+};
+
+async function putSite(patch: unknown): Promise<boolean> {
+  const res = await fetch('/api/admin/site', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  return res.ok;
+}
+
+function StatusEditor({ current }: { current: string }) {
+  const [status, setStatus] = useState(current);
+
+  useEffect(() => {
+    setStatus(current);
+  }, [current]);
+
+  async function change(next: string) {
+    setStatus(next);
+    await putSite({ availability: { status: next } });
+    document.cookie = `ch_status=${next};path=/;max-age=${60 * 60 * 24 * 365}`;
+    window.dispatchEvent(new CustomEvent('ch:status', { detail: { status: next } }));
+  }
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginTop: 4 }}>
       {STATUS_OPTIONS.map((o) => {
@@ -26,7 +56,7 @@ function StatusEditor() {
         return (
           <button
             key={o.id}
-            onClick={() => setStatus(o.id)}
+            onClick={() => void change(o.id)}
             style={{
               display: 'flex', flexDirection: 'column', gap: 4, padding: '10px 12px', textAlign: 'left', cursor: 'pointer',
               border: `1px solid ${on ? 'var(--accent)' : 'var(--line)'}`,
@@ -45,8 +75,104 @@ function StatusEditor() {
   );
 }
 
+function SaveBar({ saving, success, onSave }: { saving: boolean; success: boolean; onSave: () => void }) {
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16 }}>
+      <button className="btn btn--accent" onClick={onSave} disabled={saving}>
+        {saving ? 'Guardando…' : 'Guardar'}
+      </button>
+      {success && <span style={{ fontSize: 12, color: 'var(--accent)' }}>✓ Guardado</span>}
+    </div>
+  );
+}
+
 export function ProfileSection() {
   const [tab, setTab] = useState<Tab>('hero');
+  const [site, setSite] = useState<SiteData | null>(null);
+  const [cv, setCv] = useState<CvData | null>(null);
+
+  // Form state
+  const [heroTitle, setHeroTitle] = useState('');
+  const [heroSub, setHeroSub] = useState('');
+  const [bio, setBio] = useState('');
+  const [email, setEmail] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [cal, setCal] = useState('');
+
+  const [savingTab, setSavingTab] = useState<Tab | null>(null);
+  const [successTab, setSuccessTab] = useState<Tab | null>(null);
+
+  const loadSite = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/site');
+      const data = (await res.json()) as SiteData;
+      setSite(data);
+      setHeroTitle(data.content?.hero?.title?.es ?? '');
+      setHeroSub(data.content?.hero?.sub?.es ?? '');
+      setBio(data.content?.about?.bio?.es ?? '');
+      setEmail(data.content?.contact?.email ?? '');
+      setLinkedin(data.content?.contact?.linkedin ?? '');
+      setCal(data.content?.contact?.cal ?? '');
+    } catch {
+      setSite({});
+    }
+  }, []);
+
+  const loadCv = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/cv');
+      const data = (await res.json()) as CvData;
+      setCv(data);
+    } catch {
+      setCv(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSite();
+    void loadCv();
+  }, [loadSite, loadCv]);
+
+  async function save(t: Tab, patch: unknown) {
+    setSavingTab(t);
+    setSuccessTab(null);
+    try {
+      const ok = await putSite(patch);
+      if (ok) setSuccessTab(t);
+    } finally {
+      setSavingTab(null);
+    }
+  }
+
+  function updateExperience(i: number, field: 'role' | 'company' | 'year' | 'descEs', value: string) {
+    setCv((prev) => {
+      if (!prev) return prev;
+      const experience = prev.experience.map((e, idx) => {
+        if (idx !== i) return e;
+        if (field === 'descEs') {
+          return { ...e, description: { ...e.description, es: value } };
+        }
+        return { ...e, [field]: value };
+      });
+      return { ...prev, experience };
+    });
+  }
+
+  async function saveCv() {
+    if (!cv) return;
+    setSavingTab('cv');
+    setSuccessTab(null);
+    try {
+      const res = await fetch('/api/admin/cv', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cv),
+      });
+      if (res.ok) setSuccessTab('cv');
+    } finally {
+      setSavingTab(null);
+    }
+  }
 
   return (
     <>
@@ -62,25 +188,22 @@ export function ProfileSection() {
             <div className="adm__form">
               <div className="adm__field">
                 <label>ESTADO DE DISPONIBILIDAD · BADGE</label>
-                <StatusEditor />
+                <StatusEditor current={site?.availability?.status ?? 'open'} />
                 <div className="adm__field-hint">Aparece en la barra superior y en el hero. Los cambios se aplican al instante.</div>
-              </div>
-              <div className="adm__field-row">
-                <div className="adm__field"><label>NOMBRE</label><input defaultValue="César Heredero Herranz" /></div>
-                <div className="adm__field"><label>ROL CORTO</label><input defaultValue="Senior PO · UX Strategist" /></div>
               </div>
               <div className="adm__field">
                 <label>TÍTULO HERO · ES</label>
-                <textarea defaultValue="Convierto producto en palancas de negocio medibles." />
+                <textarea value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Dejar vacío para usar el valor por defecto" />
               </div>
               <div className="adm__field">
                 <label>SUBTÍTULO · ES</label>
-                <textarea defaultValue="Senior Product Owner & UX Strategist en Flexicar. Diez años puenteando diseño, datos y negocio en un ecommerce de automoción con +30.000 fichas y presencia en España y Portugal." style={{ minHeight: 90 }} />
+                <textarea value={heroSub} onChange={(e) => setHeroSub(e.target.value)} style={{ minHeight: 90 }} placeholder="Dejar vacío para usar el valor por defecto" />
               </div>
-              <div className="adm__field-row">
-                <div className="adm__field"><label>UBICACIÓN</label><input defaultValue="Madrid · Remoto OK" /></div>
-                <div className="adm__field"><label>DISPONIBILIDAD</label><input defaultValue="Q2 2026" /></div>
-              </div>
+              <SaveBar
+                saving={savingTab === 'hero'}
+                success={successTab === 'hero'}
+                onSave={() => void save('hero', { content: { hero: { title: { es: heroTitle }, sub: { es: heroSub } } } })}
+              />
             </div>
           )}
 
@@ -88,29 +211,61 @@ export function ProfileSection() {
             <div className="adm__form">
               <div className="adm__field">
                 <label>BIO · ES (un párrafo por línea)</label>
-                <textarea defaultValue={'Diez años en diseño y producto digital. Empecé como diseñador UX/UI consultando para Toyota, Hyundai, Sacyl, Interflora y SHAI Tajo en Devoteam.\n\nDesde 2019 en Flexicar como Senior Product Owner, donde lidero proyectos transversales entre producto, UX, SEO técnico y datos.'} style={{ minHeight: 160 }} />
+                <textarea value={bio} onChange={(e) => setBio(e.target.value)} style={{ minHeight: 160 }} placeholder="Dejar vacío para usar el valor por defecto" />
               </div>
+              <SaveBar
+                saving={savingTab === 'about'}
+                success={successTab === 'about'}
+                onSave={() => void save('about', { content: { about: { bio: { es: bio } } } })}
+              />
             </div>
           )}
 
           {tab === 'cv' && (
             <div className="adm__form">
-              <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>El CV se edita en el repositorio (content/cv.json) y se sincroniza vía Git-as-CMS.</p>
-              <div className="adm__field">
-                <label>CV PDF</label>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, color: 'var(--ink-700)' }}>cesar-heredero-cv.pdf · 218KB · v2.3.1</span>
-                  <button className="btn btn--ghost"><AdmIcon.upload /> Reemplazar</button>
-                </div>
-              </div>
+              {!cv ? (
+                <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>Cargando CV…</p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>Experiencia profesional. Los skills y formación se mantienen sin cambios.</p>
+                  {cv.experience.map((exp: CvExperience, i) => (
+                    <div key={exp.id} style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-2)', padding: 12, marginBottom: 8 }}>
+                      <div className="adm__field-row">
+                        <div className="adm__field">
+                          <label>ROL</label>
+                          <input value={exp.role} onChange={(e) => updateExperience(i, 'role', e.target.value)} />
+                        </div>
+                        <div className="adm__field">
+                          <label>AÑO</label>
+                          <input value={exp.year} onChange={(e) => updateExperience(i, 'year', e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="adm__field">
+                        <label>EMPRESA</label>
+                        <input value={exp.company} onChange={(e) => updateExperience(i, 'company', e.target.value)} />
+                      </div>
+                      <div className="adm__field">
+                        <label>DESCRIPCIÓN · ES</label>
+                        <textarea value={exp.description.es} onChange={(e) => updateExperience(i, 'descEs', e.target.value)} />
+                      </div>
+                    </div>
+                  ))}
+                  <SaveBar saving={savingTab === 'cv'} success={successTab === 'cv'} onSave={() => void saveCv()} />
+                </>
+              )}
             </div>
           )}
 
           {tab === 'contact' && (
             <div className="adm__form">
-              <div className="adm__field"><label>EMAIL</label><input defaultValue="hola@cesarheredero.com" /></div>
-              <div className="adm__field"><label>LINKEDIN</label><input defaultValue="linkedin.com/in/cesarheredero" /></div>
-              <div className="adm__field"><label>CALENDARIO</label><input defaultValue="cal.com/cesarheredero" /></div>
+              <div className="adm__field"><label>EMAIL</label><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Dejar vacío para usar el valor por defecto" /></div>
+              <div className="adm__field"><label>LINKEDIN</label><input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="Dejar vacío para usar el valor por defecto" /></div>
+              <div className="adm__field"><label>CALENDARIO</label><input value={cal} onChange={(e) => setCal(e.target.value)} placeholder="Dejar vacío para usar el valor por defecto" /></div>
+              <SaveBar
+                saving={savingTab === 'contact'}
+                success={successTab === 'contact'}
+                onSave={() => void save('contact', { content: { contact: { email, linkedin, cal } } })}
+              />
             </div>
           )}
         </div>

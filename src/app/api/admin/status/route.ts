@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import path from 'path';
+import { loadCases, saveCases } from '@/lib/content-store';
 
-const STATUS_PATH = path.join(process.cwd(), 'content', 'status.json');
+export const runtime = 'nodejs';
 
 async function isAuthed(): Promise<boolean> {
   const cookieStore = await cookies();
@@ -12,32 +11,28 @@ async function isAuthed(): Promise<boolean> {
 }
 
 export async function GET() {
-  try {
-    const raw = await readFile(STATUS_PATH, 'utf-8');
-    return NextResponse.json(JSON.parse(raw));
-  } catch {
-    return NextResponse.json({});
-  }
+  const cases = await loadCases();
+  const map: Record<string, string> = {};
+  for (const c of cases) map[c.id] = c.status ?? 'published';
+  return NextResponse.json(map);
 }
 
 export async function PATCH(request: Request) {
   if (!(await isAuthed())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const body = await request.json() as { id?: string; status?: string };
+  const body = (await request.json()) as { id?: string; status?: string };
   const { id, status } = body;
   if (!id || !['published', 'draft'].includes(status ?? '')) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
   }
-  let current: Record<string, string> = {};
-  try {
-    const raw = await readFile(STATUS_PATH, 'utf-8');
-    current = JSON.parse(raw) as Record<string, string>;
-  } catch {
-    // start fresh
+  const cases = await loadCases();
+  const target = cases.find((c) => c.id === id);
+  if (!target) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
-  current[id] = status!;
-  await writeFile(STATUS_PATH, JSON.stringify(current, null, 2), 'utf-8');
+  target.status = status as 'published' | 'draft';
+  await saveCases(cases);
   revalidatePath('/es');
   revalidatePath('/en');
   return NextResponse.json({ ok: true });

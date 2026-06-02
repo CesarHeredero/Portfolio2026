@@ -1,11 +1,44 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import cv from '@/../content/cv.json';
 
 type Locale = 'es' | 'en';
 
-export function CVSection() {
+type LocalizedText = { es: string; en: string };
+
+export type CvExperience = {
+  id: string;
+  year: string;
+  yearEn: string;
+  role: string;
+  roleEn?: string;
+  company: string;
+  companyEn?: string;
+  description: LocalizedText;
+  tags?: string[];
+  award?: LocalizedText;
+};
+
+export type CvOtherRole = {
+  year: string;
+  role: string;
+  roleEn: string;
+  company: string;
+};
+
+export type CvSkillGroup = {
+  group: string;
+  items: string[];
+};
+
+export type CvData = {
+  experience: CvExperience[];
+  otherRoles: CvOtherRole[];
+  skills: CvSkillGroup[];
+  education: CvSkillGroup[];
+};
+
+export function CVSection({ cv }: { cv: CvData }) {
   const t = useTranslations('cv');
   const locale = useLocale() as Locale;
 

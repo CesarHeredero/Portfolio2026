@@ -6,7 +6,7 @@ import { BentoGrid } from '@/components/bento-grid';
 import { WorkSection } from '@/components/work-section';
 import { AboutSection } from '@/components/about-section';
 import { ProcessSection } from '@/components/process-section';
-import { CVSection } from '@/components/cv-section';
+import { CVSectionServer } from '@/components/cv-section-server';
 import { PlaygroundSection } from '@/components/playground-section';
 import { ContactSection } from '@/components/contact-section';
 import { Footer } from '@/components/footer';
@@ -35,7 +35,7 @@ export default function HomePage() {
         <div className="sec-sep" aria-hidden="true" />
         <ProcessSection />
         <div className="sec-sep" aria-hidden="true" />
-        <CVSection />
+        <CVSectionServer />
         <div className="sec-sep" aria-hidden="true" />
         <PlaygroundSection />
         <div className="sec-sep" aria-hidden="true" />

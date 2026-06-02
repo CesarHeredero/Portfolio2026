@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { type Case, type Locale, PIA_SUMMARY, getRelatedCases } from '@/lib/content';
+import { type Case, type Locale, PIA_SUMMARY } from '@/lib/content';
 import { CaseCard } from './case-card';
 
 type Props = {
   case_: Case;
   locale: Locale;
+  related: Case[];
   backLabel: string;
   problemLabel: string;
   actionLabel: string;
@@ -18,6 +19,7 @@ type Props = {
 export function CaseDetail({
   case_,
   locale,
+  related,
   backLabel,
   problemLabel,
   actionLabel,
@@ -27,8 +29,7 @@ export function CaseDetail({
   readCaseLabel,
   featuredLabel,
 }: Props) {
-  const pia = PIA_SUMMARY[case_.id]?.[locale];
-  const related = getRelatedCases(case_.id);
+  const pia = case_.pia?.[locale] ?? PIA_SUMMARY[case_.id]?.[locale];
   const workPath = locale === 'es' ? '/trabajo' : '/work';
   const backHref = `/${locale}/#work`;
 
