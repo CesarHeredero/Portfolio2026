@@ -10,6 +10,8 @@ services:
       - NODE_ENV=production
     env_file:
       - .env
+    volumes:
+      - ./content:/app/content
     networks:
       - npm_network
     healthcheck:
