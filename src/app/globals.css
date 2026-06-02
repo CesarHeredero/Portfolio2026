@@ -1403,7 +1403,7 @@ h6 {
   font-size: var(--fs-16);
   color: var(--ink-500);
   line-height: 1.7;
-  margin-bottom: var(--s-7);
+  margin-bottom: var(--s-5);
 }
 
 .about__qualities {
@@ -1726,7 +1726,7 @@ h6 {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--ink-400);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .contact__link-value {
@@ -3020,7 +3020,7 @@ h6 {
 }
 .about__quality-title { font-size: var(--fs-14); font-weight: 600; }
 .about__quality-desc { font-size: var(--fs-13); color: var(--ink-500); line-height: 1.5; }
-.about__copy + .about__copy { margin-top: var(--s-4); }
+.about__copy + .about__copy { margin-top: 0; }
 
 /* CV — award, tags, audiovisual, formación */
 .cv__item-award {
