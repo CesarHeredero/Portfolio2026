@@ -16,10 +16,17 @@ export default getRequestConfig(async ({ requestLocale }) => {
   if (!locale || !routing.locales.includes(locale as 'es' | 'en')) {
     locale = routing.defaultLocale;
   }
-  const messages = (await import(`../../messages/${locale}.json`)).default as Record<
+  // Clone to avoid mutating the cached module object (import() is cached in Node.js)
+  const base = (await import(`../../messages/${locale}.json`)).default as Record<
     string,
     Record<string, string>
   >;
+  const messages: Record<string, Record<string, string>> = {
+    ...base,
+    hero: { ...base.hero },
+    about: { ...base.about },
+    contact: { ...base.contact },
+  };
 
   // Merge editable overrides from content/site.json (only non-empty values)
   try {

@@ -25,14 +25,6 @@ type SiteData = {
   availability?: { status?: string };
 };
 
-async function putSite(patch: unknown): Promise<boolean> {
-  const res = await fetch('/api/admin/site', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patch),
-  });
-  return res.ok;
-}
 
 function StatusEditor({ current }: { current: string }) {
   const [status, setStatus] = useState(current);
@@ -43,7 +35,11 @@ function StatusEditor({ current }: { current: string }) {
 
   async function change(next: string) {
     setStatus(next);
-    await putSite({ availability: { status: next } });
+    await fetch('/api/admin/site', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ availability: { status: next } }),
+    });
     document.cookie = `ch_status=${next};path=/;max-age=${60 * 60 * 24 * 365}`;
     window.dispatchEvent(new CustomEvent('ch:status', { detail: { status: next } }));
   }
@@ -75,13 +71,14 @@ function StatusEditor({ current }: { current: string }) {
   );
 }
 
-function SaveBar({ saving, success, onSave }: { saving: boolean; success: boolean; onSave: () => void }) {
+function SaveBar({ saving, success, error, onSave }: { saving: boolean; success: boolean; error: string; onSave: () => void }) {
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16 }}>
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16, flexWrap: 'wrap' }}>
       <button className="btn btn--accent" onClick={onSave} disabled={saving}>
-        {saving ? 'Guardando…' : 'Guardar'}
+        {saving ? 'Guardando…' : 'Guardar cambios'}
       </button>
-      {success && <span style={{ fontSize: 12, color: 'var(--accent)' }}>✓ Guardado</span>}
+      {success && <span style={{ fontSize: 12, color: 'var(--accent)' }}>✓ Guardado · visible en el portfolio en unos segundos</span>}
+      {error && <span style={{ fontSize: 12, color: 'var(--bad)' }}>⚠ {error}</span>}
     </div>
   );
 }
@@ -101,6 +98,7 @@ export function ProfileSection() {
 
   const [savingTab, setSavingTab] = useState<Tab | null>(null);
   const [successTab, setSuccessTab] = useState<Tab | null>(null);
+  const [errorTab, setErrorTab] = useState<Partial<Record<Tab, string>>>({});
 
   const loadSite = useCallback(async () => {
     try {
@@ -136,9 +134,24 @@ export function ProfileSection() {
   async function save(t: Tab, patch: unknown) {
     setSavingTab(t);
     setSuccessTab(null);
+    setErrorTab((e) => ({ ...e, [t]: '' }));
     try {
-      const ok = await putSite(patch);
-      if (ok) setSuccessTab(t);
+      const res = await fetch('/api/admin/site', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (res.ok) {
+        setSuccessTab(t);
+      } else {
+        const body = await res.json() as { error?: string };
+        setErrorTab((e) => ({
+          ...e,
+          [t]: res.status === 401 ? 'Sesión expirada — vuelve a entrar' : (body.error ?? `Error ${res.status}`),
+        }));
+      }
+    } catch {
+      setErrorTab((e) => ({ ...e, [t]: 'Sin conexión. Comprueba la red.' }));
     } finally {
       setSavingTab(null);
     }
@@ -162,13 +175,24 @@ export function ProfileSection() {
     if (!cv) return;
     setSavingTab('cv');
     setSuccessTab(null);
+    setErrorTab((e) => ({ ...e, cv: '' }));
     try {
       const res = await fetch('/api/admin/cv', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cv),
       });
-      if (res.ok) setSuccessTab('cv');
+      if (res.ok) {
+        setSuccessTab('cv');
+      } else {
+        const body = await res.json() as { error?: string };
+        setErrorTab((e) => ({
+          ...e,
+          cv: res.status === 401 ? 'Sesión expirada — vuelve a entrar' : (body.error ?? `Error ${res.status}`),
+        }));
+      }
+    } catch {
+      setErrorTab((e) => ({ ...e, cv: 'Sin conexión.' }));
     } finally {
       setSavingTab(null);
     }
@@ -202,6 +226,7 @@ export function ProfileSection() {
               <SaveBar
                 saving={savingTab === 'hero'}
                 success={successTab === 'hero'}
+                error={errorTab.hero ?? ''}
                 onSave={() => void save('hero', { content: { hero: { title: { es: heroTitle }, sub: { es: heroSub } } } })}
               />
             </div>
@@ -216,6 +241,7 @@ export function ProfileSection() {
               <SaveBar
                 saving={savingTab === 'about'}
                 success={successTab === 'about'}
+                error={errorTab.about ?? ''}
                 onSave={() => void save('about', { content: { about: { bio: { es: bio } } } })}
               />
             </div>
@@ -250,7 +276,7 @@ export function ProfileSection() {
                       </div>
                     </div>
                   ))}
-                  <SaveBar saving={savingTab === 'cv'} success={successTab === 'cv'} onSave={() => void saveCv()} />
+                  <SaveBar saving={savingTab === 'cv'} success={successTab === 'cv'} error={errorTab.cv ?? ''} onSave={() => void saveCv()} />
                 </>
               )}
             </div>
@@ -264,6 +290,7 @@ export function ProfileSection() {
               <SaveBar
                 saving={savingTab === 'contact'}
                 success={successTab === 'contact'}
+                error={errorTab.contact ?? ''}
                 onSave={() => void save('contact', { content: { contact: { email, linkedin, cal } } })}
               />
             </div>

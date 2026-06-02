@@ -11,9 +11,16 @@ async function isAuthed(): Promise<boolean> {
   return cookieStore.get('ch_admin')?.value === 'authenticated';
 }
 
-function revalidate() {
-  revalidatePath('/es');
-  revalidatePath('/en');
+function revalidate(slug?: string) {
+  revalidatePath('/es', 'page');
+  revalidatePath('/en', 'page');
+  if (slug) {
+    revalidatePath(`/es/trabajo/${slug}`, 'page');
+    revalidatePath(`/en/work/${slug}`, 'page');
+  }
+  // Revalidate all case detail layouts too
+  revalidatePath('/[locale]/trabajo/[slug]', 'page');
+  revalidatePath('/[locale]/work/[slug]', 'page');
 }
 
 export async function GET() {
@@ -36,7 +43,7 @@ export async function PUT(request: Request) {
   }
   cases[idx] = { ...cases[idx], ...incoming };
   await saveCases(cases);
-  revalidate();
+  revalidate(incoming.slug);
   return NextResponse.json({ ok: true });
 }
 

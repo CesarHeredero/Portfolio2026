@@ -220,12 +220,14 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
   const [tab, setTab] = useState<'content' | 'kpis' | 'meta'>('content');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
   const [state, setState] = useState<EditState>(() => seedState(case_));
   const [status, setStatus] = useState<Status>(case_.status ?? 'published');
 
   function update<K extends keyof EditState>(key: K, value: EditState[K]) {
     setState((s) => ({ ...s, [key]: value }));
     setSuccess(false);
+    setError('');
   }
 
   function buildCase(): Case {
@@ -260,6 +262,7 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
   async function handleSave() {
     setSaving(true);
     setSuccess(false);
+    setError('');
     try {
       const res = await fetch('/api/admin/cases', {
         method: 'PUT',
@@ -269,7 +272,12 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
       if (res.ok) {
         setSuccess(true);
         onSaved();
+      } else {
+        const body = await res.json() as { error?: string };
+        setError(res.status === 401 ? 'Sesión expirada — vuelve a entrar' : (body.error ?? `Error ${res.status}`));
       }
+    } catch {
+      setError('Sin conexión. Comprueba la red e inténtalo de nuevo.');
     } finally {
       setSaving(false);
     }
@@ -277,6 +285,7 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
 
   async function handleStatusChange(next: Status) {
     setSaving(true);
+    setError('');
     try {
       const res = await fetch('/api/admin/cases', {
         method: 'PATCH',
@@ -286,7 +295,12 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
       if (res.ok) {
         setStatus(next);
         onSaved();
+      } else {
+        const body = await res.json() as { error?: string };
+        setError(res.status === 401 ? 'Sesión expirada — vuelve a entrar' : (body.error ?? `Error ${res.status}`));
       }
+    } catch {
+      setError('Sin conexión.');
     } finally {
       setSaving(false);
     }
@@ -427,11 +441,16 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16, flexWrap: 'wrap' }}>
             <button className="btn btn--accent" onClick={() => void handleSave()} disabled={saving}>
-              {saving ? 'Guardando…' : 'Guardar'}
+              {saving ? 'Guardando…' : 'Guardar cambios'}
             </button>
-            {success && <span style={{ fontSize: 12, color: 'var(--accent)' }}>✓ Guardado</span>}
+            {success && (
+              <span style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                ✓ Guardado · los cambios aparecen en el portfolio en unos segundos
+              </span>
+            )}
+            {error && <span style={{ fontSize: 12, color: 'var(--bad)' }}>⚠ {error}</span>}
           </div>
         </div>
       </div>
