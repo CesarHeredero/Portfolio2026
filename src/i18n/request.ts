@@ -47,6 +47,9 @@ type SiteContent = {
       step3Title?: string; step3Desc?: string;
       step4Title?: string; step4Desc?: string;
       step5Title?: string; step5Desc?: string;
+      step6Title?: string; step6Desc?: string;
+      step7Title?: string; step7Desc?: string;
+      step8Title?: string; step8Desc?: string;
     };
     contact?: {
       title?: string;
@@ -126,7 +129,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
         applyStr(messages.about, k, ov.about?.[k]);
       }
       // process
-      for (const k of ['step1Title', 'step1Desc', 'step2Title', 'step2Desc', 'step3Title', 'step3Desc', 'step4Title', 'step4Desc', 'step5Title', 'step5Desc'] as const) {
+      for (const k of ['step1Title', 'step1Desc', 'step2Title', 'step2Desc', 'step3Title', 'step3Desc', 'step4Title', 'step4Desc', 'step5Title', 'step5Desc', 'step6Title', 'step6Desc', 'step7Title', 'step7Desc', 'step8Title', 'step8Desc'] as const) {
         applyStr(messages.process, k, ov.process?.[k]);
       }
       // contact

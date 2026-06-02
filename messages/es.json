@@ -11,7 +11,7 @@
     "menuClose": "Cerrar menú"
   },
   "statusBar": {
-    "role": "Senior Product Owner",
+    "role": "Senior Product Owner & UX Strategist",
     "company": "Abierto a ofertas",
     "availableText": "Abierto a ofertas",
     "busyText": "No disponible",
@@ -114,7 +114,13 @@
     "step4Title": "Coordinación",
     "step4Desc": "Alineo dev, marketing, data, SEO e infra. Gestión de dependencias y comunicación de estado.",
     "step5Title": "Medición post",
-    "step5Desc": "Protocolo pre/post en cada cambio. Los resultados informan la siguiente iteración."
+    "step5Desc": "Protocolo pre/post en cada cambio. Los resultados informan la siguiente iteración.",
+    "step6Title": "",
+    "step6Desc": "",
+    "step7Title": "",
+    "step7Desc": "",
+    "step8Title": "",
+    "step8Desc": ""
   },
   "cv": {
     "title": "Trayectoria",

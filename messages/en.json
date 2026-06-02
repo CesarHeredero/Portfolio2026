@@ -11,7 +11,7 @@
     "menuClose": "Close menu"
   },
   "statusBar": {
-    "role": "Senior Product Owner",
+    "role": "Senior Product Owner & UX Strategist",
     "company": "Open to offers",
     "availableText": "Open to offers",
     "busyText": "Unavailable",
@@ -114,7 +114,13 @@
     "step4Title": "Coordination",
     "step4Desc": "I align dev, marketing, data, SEO and infra. Dependency management and status communication.",
     "step5Title": "Post measurement",
-    "step5Desc": "Pre/post protocol on every change. Results inform the next iteration."
+    "step5Desc": "Pre/post protocol on every change. Results inform the next iteration.",
+    "step6Title": "",
+    "step6Desc": "",
+    "step7Title": "",
+    "step7Desc": "",
+    "step8Title": "",
+    "step8Desc": ""
   },
   "cv": {
     "title": "Background",

@@ -59,5 +59,8 @@ export async function PUT(request: Request) {
   await writeFile(SITE_PATH, JSON.stringify(merged, null, 2), 'utf-8');
   revalidatePath('/es');
   revalidatePath('/en');
+  revalidatePath('/(es)', 'layout');
+  revalidatePath('/(en)', 'layout');
+  revalidatePath('/', 'layout');
   return NextResponse.json({ ok: true });
 }

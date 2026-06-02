@@ -48,6 +48,9 @@ type SiteData = {
       step3Title?: string; step3Desc?: string;
       step4Title?: string; step4Desc?: string;
       step5Title?: string; step5Desc?: string;
+      step6Title?: string; step6Desc?: string;
+      step7Title?: string; step7Desc?: string;
+      step8Title?: string; step8Desc?: string;
     };
     contact?: { title?: string; intro?: string; email?: string; linkedin?: string; cal?: string };
     footer?: { pitch?: string };
@@ -212,6 +215,9 @@ export function ProfileSection() {
   const [s3t, setS3t] = useState(''); const [s3d, setS3d] = useState('');
   const [s4t, setS4t] = useState(''); const [s4d, setS4d] = useState('');
   const [s5t, setS5t] = useState(''); const [s5d, setS5d] = useState('');
+  const [s6t, setS6t] = useState(''); const [s6d, setS6d] = useState('');
+  const [s7t, setS7t] = useState(''); const [s7d, setS7d] = useState('');
+  const [s8t, setS8t] = useState(''); const [s8d, setS8d] = useState('');
 
   // ── Contact ───────────────────────────────────────────────────────────────
   const [contactTitle, setContactTitle] = useState('');
@@ -271,6 +277,9 @@ export function ProfileSection() {
       setS3t(c?.process?.step3Title ?? ''); setS3d(c?.process?.step3Desc ?? '');
       setS4t(c?.process?.step4Title ?? ''); setS4d(c?.process?.step4Desc ?? '');
       setS5t(c?.process?.step5Title ?? ''); setS5d(c?.process?.step5Desc ?? '');
+      setS6t(c?.process?.step6Title ?? ''); setS6d(c?.process?.step6Desc ?? '');
+      setS7t(c?.process?.step7Title ?? ''); setS7d(c?.process?.step7Desc ?? '');
+      setS8t(c?.process?.step8Title ?? ''); setS8d(c?.process?.step8Desc ?? '');
       setContactTitle(c?.contact?.title ?? '');
       setContactIntro(c?.contact?.intro ?? '');
       setEmail(c?.contact?.email ?? '');
@@ -331,6 +340,30 @@ export function ProfileSection() {
         if (field === 'descEs') return { ...e, description: { ...e.description, es: value } };
         return { ...e, [field]: value };
       });
+      return { ...prev, experience };
+    });
+  }
+
+  function addExperience() {
+    setCv((prev) => {
+      if (!prev) return prev;
+      const newEntry: CvExperience = {
+        id: `exp-${Date.now()}`,
+        year: '',
+        yearEn: '',
+        role: '',
+        company: '',
+        description: { es: '', en: '' },
+        tags: [],
+      };
+      return { ...prev, experience: [...prev.experience, newEntry] };
+    });
+  }
+
+  function deleteExperience(i: number) {
+    setCv((prev) => {
+      if (!prev) return prev;
+      const experience = prev.experience.filter((_, idx) => idx !== i);
       return { ...prev, experience };
     });
   }
@@ -584,13 +617,16 @@ export function ProfileSection() {
           {/* ── PROCESO ── */}
           {tab === 'process' && (
             <div className="adm__form">
-              <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>Los 5 pasos de la sección &ldquo;Cómo trabajo&rdquo;.</p>
+              <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>Hasta 8 pasos en la sección &ldquo;Cómo trabajo&rdquo;. Los pasos sin título no se muestran.</p>
               {([
                 [s1t, setS1t, s1d, setS1d, '1'],
                 [s2t, setS2t, s2d, setS2d, '2'],
                 [s3t, setS3t, s3d, setS3d, '3'],
                 [s4t, setS4t, s4d, setS4d, '4'],
                 [s5t, setS5t, s5d, setS5d, '5'],
+                [s6t, setS6t, s6d, setS6d, '6'],
+                [s7t, setS7t, s7d, setS7d, '7'],
+                [s8t, setS8t, s8d, setS8d, '8'],
               ] as [string, (v: string) => void, string, (v: string) => void, string][]).map(([t, setT, d, setD, n]) => (
                 <Row key={n}>
                   <Field label={`PASO ${n} · TÍTULO`} hint={hint}>
@@ -613,6 +649,9 @@ export function ProfileSection() {
                       step3Title: s3t, step3Desc: s3d,
                       step4Title: s4t, step4Desc: s4d,
                       step5Title: s5t, step5Desc: s5d,
+                      step6Title: s6t, step6Desc: s6d,
+                      step7Title: s7t, step7Desc: s7d,
+                      step8Title: s8t, step8Desc: s8d,
                     },
                   },
                 })}
@@ -629,7 +668,23 @@ export function ProfileSection() {
                 <>
                   <p style={{ fontSize: 12, color: 'var(--ink-500)' }}>Experiencia profesional. Los skills y formación se mantienen sin cambios.</p>
                   {cv.experience.map((exp: CvExperience, i) => (
-                    <div key={exp.id} style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-2)', padding: 12, marginBottom: 8 }}>
+                    <div key={exp.id} style={{ border: '1px solid var(--line)', borderRadius: 'var(--r-2)', padding: 12, marginBottom: 8, position: 'relative' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--ink-500)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          Entrada {i + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => deleteExperience(i)}
+                          style={{
+                            padding: '2px 8px', fontSize: 11, cursor: 'pointer',
+                            background: 'transparent', color: 'var(--bad)',
+                            border: '1px solid var(--bad)', borderRadius: 'var(--r-2)',
+                          }}
+                        >
+                          ✕ Eliminar
+                        </button>
+                      </div>
                       <Row>
                         <Field label="ROL">
                           <input value={exp.role} onChange={(e) => updateExperience(i, 'role', e.target.value)} />
@@ -646,6 +701,18 @@ export function ProfileSection() {
                       </Field>
                     </div>
                   ))}
+                  <button
+                    type="button"
+                    onClick={addExperience}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+                      fontSize: 12, cursor: 'pointer', marginBottom: 12,
+                      background: 'var(--accent-bg)', color: 'var(--accent-2)',
+                      border: '1px dashed var(--accent)', borderRadius: 'var(--r-2)',
+                    }}
+                  >
+                    + Añadir experiencia
+                  </button>
                   <SaveBar saving={savingTab === 'cv'} success={successTab === 'cv'} error={errorTab.cv ?? ''} onSave={() => void saveCv()} />
                 </>
               )}

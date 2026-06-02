@@ -9,7 +9,10 @@ export function ProcessSection() {
     { title: t('step3Title'), desc: t('step3Desc') },
     { title: t('step4Title'), desc: t('step4Desc') },
     { title: t('step5Title'), desc: t('step5Desc') },
-  ];
+    { title: t('step6Title'), desc: t('step6Desc') },
+    { title: t('step7Title'), desc: t('step7Desc') },
+    { title: t('step8Title'), desc: t('step8Desc') },
+  ].filter((s) => s.title.trim());
 
   return (
     <section className="sec" id="process" aria-labelledby="process-title">
