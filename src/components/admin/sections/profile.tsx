@@ -172,7 +172,6 @@ export function ProfileSection() {
   const [heroSub, setHeroSub] = useState('');
   const [heroSubEn, setHeroSubEn] = useState('');
   const [heroIdName, setHeroIdName] = useState('');
-  const [heroRole, setHeroRole] = useState('');
   const [heroExp, setHeroExp] = useState('');
   const [heroLocation, setHeroLocation] = useState('');
   const [heroCta1, setHeroCta1] = useState('');
@@ -242,7 +241,6 @@ export function ProfileSection() {
       setHeroSub(c?.hero?.sub?.es ?? '');
       setHeroSubEn(c?.hero?.sub?.en ?? '');
       setHeroIdName(c?.hero?.idName ?? '');
-      setHeroRole(c?.hero?.roleValue ?? '');
       setHeroExp(c?.hero?.expValue ?? '');
       setHeroLocation(c?.hero?.locationValue ?? '');
       setHeroCta1(c?.hero?.cta1 ?? '');
@@ -391,7 +389,7 @@ export function ProfileSection() {
               <Field label="CARGO PRINCIPAL · aparece en el header y en la tarjeta del hero" hint={hint}>
                 <input
                   value={statusBarRole}
-                  onChange={(e) => { setStatusBarRole(e.target.value); setHeroRole(e.target.value); }}
+                  onChange={(e) => setStatusBarRole(e.target.value)}
                   placeholder="Senior Product Owner & UX Strategist"
                 />
                 <div className="adm__field-hint" style={{ color: 'var(--accent-2)' }}>Este campo actualiza a la vez el header (barra superior) y la tarjeta del hero.</div>
