@@ -27,6 +27,7 @@ function getCookie(name: string): string | null {
 
 export function Nav() {
   const t = useTranslations('nav');
+  const tStatus = useTranslations('statusBar');
   const locale = useLocale();
   const pathname = usePathname();
 
@@ -90,7 +91,7 @@ export function Nav() {
             <span className="nav__name">César Heredero</span>
           </Link>
           <span className="nav__divider" aria-hidden="true" />
-          <span className="nav__role">Senior Product Owner</span>
+          <span className="nav__role">{tStatus('role')}</span>
 
           <ul className="nav__list" role="list">
             {navLinks.map((link) => (
