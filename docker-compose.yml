@@ -12,6 +12,7 @@ services:
       - .env
     volumes:
       - ./content:/app/content
+      - ./public/cases:/app/public/cases
     networks:
       - npm_network
     healthcheck:

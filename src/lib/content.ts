@@ -32,6 +32,9 @@ export type Case = {
   featured?: boolean;
   status?: 'published' | 'draft';
   pia?: { es: PIASummary; en: PIASummary };
+  coverImage?: string;
+  images?: string[];
+  analysisDoc?: string;
 };
 
 export const CASES: Case[] = [

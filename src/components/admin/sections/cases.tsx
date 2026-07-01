@@ -198,6 +198,9 @@ type EditState = {
   piaActionEn: string;
   piaImpactEn: string;
   kpis: { value: string; labelEs: string; labelEn: string }[];
+  coverImage: string;
+  images: string[];
+  analysisDoc: string;
 };
 
 type AiEditResult = {
@@ -231,11 +234,14 @@ function seedState(c: Case): EditState {
     piaActionEn: c.pia?.en.action ?? '',
     piaImpactEn: c.pia?.en.impact ?? '',
     kpis: c.kpis.map((k) => ({ value: k.value, labelEs: k.label.es, labelEn: k.label.en })),
+    coverImage: c.coverImage ?? '',
+    images: c.images ?? [],
+    analysisDoc: c.analysisDoc ?? '',
   };
 }
 
 function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => void; onSaved: () => void }) {
-  const [tab, setTab] = useState<'content' | 'kpis' | 'meta'>('content');
+  const [tab, setTab] = useState<'content' | 'kpis' | 'meta' | 'images' | 'analysis'>('content');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -244,6 +250,24 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
   const [instruction, setInstruction] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState('');
+  const [imageUploading, setImageUploading] = useState<string | null>(null);
+  const [analysisEs, setAnalysisEs] = useState('');
+  const [analysisEn, setAnalysisEn] = useState('');
+  const [contentLoaded, setContentLoaded] = useState(false);
+  const [contentSaving, setContentSaving] = useState(false);
+  const [pdfUploading, setPdfUploading] = useState(false);
+
+  useEffect(() => {
+    if (tab === 'analysis' && !contentLoaded) {
+      void fetch(`/api/admin/cases/content?slug=${case_.slug}`)
+        .then((r) => r.json() as Promise<{ es: string; en: string }>)
+        .then((data) => {
+          setAnalysisEs(data.es);
+          setAnalysisEn(data.en);
+          setContentLoaded(true);
+        });
+    }
+  }, [tab, contentLoaded, case_.slug]);
 
   function update<K extends keyof EditState>(key: K, value: EditState[K]) {
     setState((s) => ({ ...s, [key]: value }));
@@ -251,8 +275,8 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
     setError('');
   }
 
-  function buildCase(): Case {
-    const kpis: KPI[] = state.kpis
+  function buildCase(s: EditState = state): Case {
+    const kpis: KPI[] = s.kpis
       .filter((k) => k.value.trim() || k.labelEs.trim())
       .map((k) => ({
         value: k.value,
@@ -260,25 +284,131 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
       }));
     return {
       ...case_,
-      slug: state.slug,
-      category: { es: state.categoryEs, en: state.categoryEn || state.categoryEs },
-      year: state.year,
-      title: { es: state.titleEs, en: state.titleEn || state.titleEs },
-      teaser: { es: state.teaserEs, en: state.teaserEn || state.teaserEs },
-      tags: state.tags.split(',').map((t) => t.trim()).filter(Boolean),
-      impactType: state.impactType,
-      featured: state.featured,
+      slug: s.slug,
+      category: { es: s.categoryEs, en: s.categoryEn || s.categoryEs },
+      year: s.year,
+      title: { es: s.titleEs, en: s.titleEn || s.titleEs },
+      teaser: { es: s.teaserEs, en: s.teaserEn || s.teaserEs },
+      tags: s.tags.split(',').map((t) => t.trim()).filter(Boolean),
+      impactType: s.impactType,
+      featured: s.featured,
       status,
       kpis,
       pia: {
-        es: { problem: state.piaProblem, action: state.piaAction, impact: state.piaImpact },
+        es: { problem: s.piaProblem, action: s.piaAction, impact: s.piaImpact },
         en: {
-          problem: state.piaProblemEn || state.piaProblem,
-          action: state.piaActionEn || state.piaAction,
-          impact: state.piaImpactEn || state.piaImpact,
+          problem: s.piaProblemEn || s.piaProblem,
+          action: s.piaActionEn || s.piaAction,
+          impact: s.piaImpactEn || s.piaImpact,
         },
       },
+      coverImage: s.coverImage || undefined,
+      images: s.images.length > 0 ? s.images : undefined,
+      analysisDoc: s.analysisDoc || undefined,
     };
+  }
+
+  async function autoSave(newState: EditState) {
+    await fetch('/api/admin/cases', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildCase(newState)),
+    });
+    onSaved();
+  }
+
+  async function uploadFile(file: File, type: 'cover' | 'image' | 'doc'): Promise<string | null> {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('slug', case_.slug);
+    fd.append('type', type);
+    const res = await fetch('/api/admin/cases/upload', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const body = await res.json() as { error?: string };
+      throw new Error(body.error ?? `Error ${res.status}`);
+    }
+    const { url } = await res.json() as { url: string };
+    return url;
+  }
+
+  async function handleCoverUpload(files: FileList | null) {
+    if (!files?.[0]) return;
+    setImageUploading('cover');
+    try {
+      const url = await uploadFile(files[0], 'cover');
+      if (url) {
+        const ns = { ...state, coverImage: url };
+        setState(ns);
+        await autoSave(ns);
+      }
+    } catch { /* ignored */ } finally {
+      setImageUploading(null);
+    }
+  }
+
+  async function handleGalleryUpload(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setImageUploading('gallery');
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFile(file, 'image');
+        if (url) urls.push(url);
+      }
+      if (urls.length > 0) {
+        const ns = { ...state, images: [...state.images, ...urls] };
+        setState(ns);
+        await autoSave(ns);
+      }
+    } catch { /* ignored */ } finally {
+      setImageUploading(null);
+    }
+  }
+
+  function removeImage(idx: number) {
+    const ns = { ...state, images: state.images.filter((_, i) => i !== idx) };
+    setState(ns);
+    void autoSave(ns);
+  }
+
+  function removeCover() {
+    const ns = { ...state, coverImage: '' };
+    setState(ns);
+    void autoSave(ns);
+  }
+
+  async function handlePdfUpload(files: FileList | null) {
+    if (!files?.[0]) return;
+    setPdfUploading(true);
+    try {
+      const url = await uploadFile(files[0], 'doc');
+      if (url) {
+        const ns = { ...state, analysisDoc: url };
+        setState(ns);
+        await autoSave(ns);
+      }
+    } catch { /* ignored */ } finally {
+      setPdfUploading(false);
+    }
+  }
+
+  function removePdf() {
+    const ns = { ...state, analysisDoc: '' };
+    setState(ns);
+    void autoSave(ns);
+  }
+
+  async function saveContent() {
+    setContentSaving(true);
+    try {
+      await fetch('/api/admin/cases/content', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug: case_.slug, es: analysisEs, en: analysisEn }),
+      });
+    } finally {
+      setContentSaving(false);
+    }
   }
 
   async function applyInstruction() {
@@ -459,9 +589,13 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
       </div>
 
       <div className="adm__tabs">
-        {(['content', 'kpis', 'meta'] as const).map((tk) => (
+        {(['content', 'kpis', 'meta', 'images', 'analysis'] as const).map((tk) => (
           <button key={tk} className={`adm__tab ${tab === tk ? 'on' : ''}`} onClick={() => setTab(tk)}>
-            {tk === 'content' ? 'Contenido' : tk === 'kpis' ? 'KPIs' : 'Metadata'}
+            {tk === 'content' ? 'Contenido'
+              : tk === 'kpis' ? 'KPIs'
+              : tk === 'meta' ? 'Metadata'
+              : tk === 'images' ? 'Imágenes'
+              : 'Análisis'}
           </button>
         ))}
       </div>
@@ -589,6 +723,113 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
                   <input type="checkbox" checked={state.featured} onChange={(e) => update('featured', e.target.checked)} style={{ width: 'auto' }} />
                   Destacado (featured)
                 </label>
+              </div>
+            </div>
+          )}
+
+          {tab === 'images' && (
+            <div className="adm__form">
+              <div className="adm__field">
+                <label>IMAGEN DE PORTADA</label>
+                {state.coverImage ? (
+                  <div style={{ marginBottom: 10 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={state.coverImage} alt="Portada" style={{ maxWidth: 320, maxHeight: 200, objectFit: 'cover', borderRadius: 4, display: 'block', marginBottom: 6 }} />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <label className="btn btn--ghost" style={{ cursor: 'pointer' }}>
+                        Cambiar
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => void handleCoverUpload(e.target.files)} disabled={!!imageUploading} />
+                      </label>
+                      <button className="btn btn--ghost" onClick={removeCover} disabled={!!imageUploading}>Quitar portada</button>
+                    </div>
+                  </div>
+                ) : (
+                  <label className="btn btn--ghost" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                    {imageUploading === 'cover' ? 'Subiendo…' : '+ Subir portada'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => void handleCoverUpload(e.target.files)} disabled={!!imageUploading} />
+                  </label>
+                )}
+              </div>
+
+              <div className="adm__field">
+                <label>GALERÍA DE IMÁGENES</label>
+                {state.images.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8, marginBottom: 10 }}>
+                    {state.images.map((img, i) => (
+                      <div key={i} style={{ position: 'relative' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img} alt={`Imagen ${i + 1}`} style={{ width: '100%', height: 110, objectFit: 'cover', borderRadius: 4, display: 'block' }} />
+                        <button
+                          onClick={() => removeImage(i)}
+                          style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: 12, lineHeight: '22px', textAlign: 'center', padding: 0 }}
+                          title="Quitar imagen"
+                        >✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label className="btn btn--ghost" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                  {imageUploading === 'gallery' ? 'Subiendo…' : '+ Añadir imágenes'}
+                  <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={(e) => void handleGalleryUpload(e.target.files)} disabled={!!imageUploading} />
+                </label>
+                <div className="adm__field-hint">Puedes seleccionar varias a la vez. JPG, PNG o WebP, máx 10MB por imagen.</div>
+              </div>
+            </div>
+          )}
+
+          {tab === 'analysis' && (
+            <div className="adm__form">
+              {!contentLoaded ? (
+                <div style={{ padding: 24, textAlign: 'center', color: 'var(--ink-400)', fontSize: 13 }}>Cargando contenido…</div>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: 'var(--ink-500)', marginBottom: 12 }}>
+                    Contenido largo del caso en Markdown. Se muestra en la página de detalle del proyecto.
+                  </p>
+                  <div className="adm__field-row">
+                    <div className="adm__field">
+                      <label>ANÁLISIS · ES (Markdown)</label>
+                      <textarea
+                        value={analysisEs}
+                        onChange={(e) => setAnalysisEs(e.target.value)}
+                        style={{ minHeight: 320, fontFamily: 'var(--font-mono)', fontSize: 12, resize: 'vertical' }}
+                        placeholder="# Contexto&#10;&#10;Describe aquí el caso en detalle…"
+                      />
+                    </div>
+                    <div className="adm__field">
+                      <label>ANÁLISIS · EN (Markdown)</label>
+                      <textarea
+                        value={analysisEn}
+                        onChange={(e) => setAnalysisEn(e.target.value)}
+                        style={{ minHeight: 320, fontFamily: 'var(--font-mono)', fontSize: 12, resize: 'vertical' }}
+                        placeholder="# Context&#10;&#10;Describe the case in detail here…"
+                      />
+                    </div>
+                  </div>
+                  <button className="btn btn--accent" onClick={() => void saveContent()} disabled={contentSaving}>
+                    {contentSaving ? 'Guardando…' : 'Guardar análisis'}
+                  </button>
+                </>
+              )}
+
+              <div className="adm__field" style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--ink-200)' }}>
+                <label>DOCUMENTO PDF</label>
+                {state.analysisDoc ? (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                    <a href={state.analysisDoc} target="_blank" rel="noreferrer" className="btn btn--ghost">Ver PDF</a>
+                    <label className="btn btn--ghost" style={{ cursor: 'pointer' }}>
+                      {pdfUploading ? 'Subiendo…' : 'Cambiar PDF'}
+                      <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={(e) => void handlePdfUpload(e.target.files)} disabled={pdfUploading} />
+                    </label>
+                    <button className="btn btn--ghost" onClick={removePdf} disabled={pdfUploading}>Quitar</button>
+                  </div>
+                ) : (
+                  <label className="btn btn--ghost" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                    {pdfUploading ? 'Subiendo…' : '+ Subir PDF'}
+                    <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={(e) => void handlePdfUpload(e.target.files)} disabled={pdfUploading} />
+                  </label>
+                )}
+                <div className="adm__field-hint">Máx 20MB. Se almacena como documento descargable del caso.</div>
               </div>
             </div>
           )}
