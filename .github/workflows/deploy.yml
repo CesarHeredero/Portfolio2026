@@ -20,8 +20,11 @@ jobs:
           port: 22
           script: |
             cd ~/portfolio2026
+            cp -r content /tmp/portfolio_content_backup
             git fetch origin
             git checkout ${{ github.ref_name }}
-            git pull origin ${{ github.ref_name }}
+            git reset --hard origin/${{ github.ref_name }}
+            cp -r /tmp/portfolio_content_backup/. content/
+            rm -rf /tmp/portfolio_content_backup
             docker compose up -d --build app
             echo "✅ Deploy completado: $(date)"
