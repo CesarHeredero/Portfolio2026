@@ -62,25 +62,6 @@ export function CasesSection() {
     }
   }
 
-  async function createCase() {
-    const slug = `nuevo-caso-${Date.now()}`;
-    setSaving('__new__');
-    try {
-      const res = await fetch('/api/admin/cases', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, title: { es: 'Nuevo caso' } }),
-      });
-      if (res.ok) {
-        const created = (await res.json()) as Case;
-        await loadCases();
-        setEditingId(created.id);
-      }
-    } finally {
-      setSaving(null);
-    }
-  }
-
   async function deleteCase(id: string, title: string) {
     if (!window.confirm(`¿Eliminar el caso "${title}"? Esta acción no se puede deshacer.`)) return;
     setSaving(id);
@@ -136,14 +117,9 @@ export function CasesSection() {
             <button aria-pressed={filter === 'draft'} onClick={() => setFilter('draft')}>BORRADOR · {counts.draft}</button>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn--ghost" onClick={() => void createCase()} disabled={saving === '__new__'}>
-            {saving === '__new__' ? 'Creando…' : '+ Nuevo (manual)'}
-          </button>
-          <button className="btn btn--accent" onClick={() => setShowWizard(true)}>
-            ✨ Generar con IA
-          </button>
-        </div>
+        <button className="btn btn--accent" onClick={() => setShowWizard(true)}>
+          ✨ Nuevo caso
+        </button>
       </div>
 
       {loading ? (
