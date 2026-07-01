@@ -1,0 +1,27 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - claude/design-handoff-lAbGI
+      - main
+
+jobs:
+  deploy:
+    name: Deploy portfolio
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to VPS and deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/portfolio2026
+            git fetch origin
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+            docker compose up -d --build app
+            echo "✅ Deploy completado: $(date)"
