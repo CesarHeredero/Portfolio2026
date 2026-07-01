@@ -27,7 +27,19 @@ type Question = {
 
 type AnalyzeBody = { phase: 'analyze'; initialData: InitialData };
 type GenerateBody = { phase: 'generate'; initialData: InitialData; answers?: Record<string, string> };
-type RequestBody = AnalyzeBody | GenerateBody;
+
+type CaseEditData = {
+  titleEs: string; titleEn: string;
+  teaserEs: string; teaserEn: string;
+  categoryEs: string; categoryEn: string;
+  year: string; tags: string[]; impactType: string;
+  piaProblem: string; piaAction: string; piaImpact: string;
+  piaProblemEn: string; piaActionEn: string; piaImpactEn: string;
+  kpis: { value: string; labelEs: string; labelEn: string }[];
+};
+
+type EditBody = { phase: 'edit'; currentCase: CaseEditData; instruction: string };
+type RequestBody = AnalyzeBody | GenerateBody | EditBody;
 
 export async function POST(request: Request) {
   if (!(await isAuthed())) {
@@ -54,6 +66,9 @@ export async function POST(request: Request) {
   }
   if (body.phase === 'generate') {
     return generate(client, body.initialData, body.answers);
+  }
+  if (body.phase === 'edit') {
+    return editCase(client, body.currentCase, body.instruction);
   }
 
   return NextResponse.json({ error: 'Fase desconocida' }, { status: 400 });
@@ -192,5 +207,70 @@ REGLAS IMPORTANTES:
   } catch (err) {
     console.error('generate error:', err);
     return NextResponse.json({ error: 'Error al generar el caso. Inténtalo de nuevo.' }, { status: 500 });
+  }
+}
+
+// ── Phase 3: Edit an existing case with a natural language instruction ────────
+
+async function editCase(client: Anthropic, current: CaseEditData, instruction: string) {
+  const kpisText = current.kpis.map((k) => `${k.value} / ${k.labelEs} / ${k.labelEn}`).join(' | ');
+
+  const prompt = `Eres el editor de casos del portfolio de César Heredero (Senior Product Owner & UX Strategist). Tienes el contenido actual de un caso y una instrucción del usuario. Aplica SOLO los cambios pedidos y devuelve el caso completo actualizado.
+
+CASO ACTUAL:
+- Título ES: ${current.titleEs}
+- Título EN: ${current.titleEn}
+- Teaser ES: ${current.teaserEs}
+- Teaser EN: ${current.teaserEn}
+- Categoría ES: ${current.categoryEs}
+- Categoría EN: ${current.categoryEn}
+- Año: ${current.year}
+- Tags: ${current.tags.join(', ')}
+- Tipo de impacto: ${current.impactType}
+- Problema ES: ${current.piaProblem}
+- Acción ES: ${current.piaAction}
+- Impacto ES: ${current.piaImpact}
+- Problema EN: ${current.piaProblemEn}
+- Acción EN: ${current.piaActionEn}
+- Impacto EN: ${current.piaImpactEn}
+- KPIs (valor / etiqueta ES / etiqueta EN): ${kpisText || 'ninguno'}
+
+INSTRUCCIÓN DEL USUARIO: "${instruction}"
+
+Aplica los cambios pedidos. Si el usuario dice "cambia X por Y", actualiza ese campo. Si dice "añade", agrega. Si dice "quita", elimina. Si pide un cambio en español, actualiza también la versión EN manteniendo coherencia. No cambies lo que no se ha pedido. Mantén máximo 4 KPIs.
+
+Responde ÚNICAMENTE con este JSON válido (sin markdown, sin texto adicional):
+{
+  "titleEs": "...",
+  "titleEn": "...",
+  "teaserEs": "...",
+  "teaserEn": "...",
+  "categoryEs": "...",
+  "categoryEn": "...",
+  "year": "...",
+  "tags": ["..."],
+  "impactType": "product|seo|data|ux|performance|content",
+  "piaProblem": "...",
+  "piaAction": "...",
+  "piaImpact": "...",
+  "piaProblemEn": "...",
+  "piaActionEn": "...",
+  "piaImpactEn": "...",
+  "kpis": [{"value": "...", "labelEs": "...", "labelEn": "..."}]
+}`;
+
+  try {
+    const msg = await client.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '{}';
+    const updated = JSON.parse(raw) as CaseEditData;
+    return NextResponse.json({ updated });
+  } catch (err) {
+    console.error('edit error:', err);
+    return NextResponse.json({ error: 'Error al editar el caso. Inténtalo de nuevo.' }, { status: 500 });
   }
 }

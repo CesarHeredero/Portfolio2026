@@ -181,9 +181,12 @@ export function CasesSection() {
 type EditState = {
   slug: string;
   categoryEs: string;
+  categoryEn: string;
   year: string;
   titleEs: string;
+  titleEn: string;
   teaserEs: string;
+  teaserEn: string;
   tags: string;
   impactType: ImpactType;
   featured: boolean;
@@ -191,16 +194,32 @@ type EditState = {
   piaProblem: string;
   piaAction: string;
   piaImpact: string;
-  kpis: { value: string; labelEs: string }[];
+  piaProblemEn: string;
+  piaActionEn: string;
+  piaImpactEn: string;
+  kpis: { value: string; labelEs: string; labelEn: string }[];
+};
+
+type AiEditResult = {
+  titleEs: string; titleEn: string;
+  teaserEs: string; teaserEn: string;
+  categoryEs: string; categoryEn: string;
+  year: string; tags: string[]; impactType: string;
+  piaProblem: string; piaAction: string; piaImpact: string;
+  piaProblemEn: string; piaActionEn: string; piaImpactEn: string;
+  kpis: { value: string; labelEs: string; labelEn: string }[];
 };
 
 function seedState(c: Case): EditState {
   return {
     slug: c.slug,
     categoryEs: c.category.es,
+    categoryEn: c.category.en,
     year: c.year,
     titleEs: c.title.es,
+    titleEn: c.title.en,
     teaserEs: c.teaser.es,
+    teaserEn: c.teaser.en,
     tags: c.tags.join(', '),
     impactType: c.impactType,
     featured: c.featured ?? false,
@@ -208,7 +227,10 @@ function seedState(c: Case): EditState {
     piaProblem: c.pia?.es.problem ?? '',
     piaAction: c.pia?.es.action ?? '',
     piaImpact: c.pia?.es.impact ?? '',
-    kpis: c.kpis.map((k) => ({ value: k.value, labelEs: k.label.es })),
+    piaProblemEn: c.pia?.en.problem ?? '',
+    piaActionEn: c.pia?.en.action ?? '',
+    piaImpactEn: c.pia?.en.impact ?? '',
+    kpis: c.kpis.map((k) => ({ value: k.value, labelEs: k.label.es, labelEn: k.label.en })),
   };
 }
 
@@ -219,6 +241,9 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
   const [error, setError] = useState('');
   const [state, setState] = useState<EditState>(() => seedState(case_));
   const [status, setStatus] = useState<Status>(case_.status ?? 'published');
+  const [instruction, setInstruction] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
 
   function update<K extends keyof EditState>(key: K, value: EditState[K]) {
     setState((s) => ({ ...s, [key]: value }));
@@ -229,20 +254,17 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
   function buildCase(): Case {
     const kpis: KPI[] = state.kpis
       .filter((k) => k.value.trim() || k.labelEs.trim())
-      .map((k) => {
-        const orig = case_.kpis.find((o) => o.value === k.value);
-        return {
-          value: k.value,
-          label: { es: k.labelEs, en: orig?.label.en ?? k.labelEs },
-        };
-      });
+      .map((k) => ({
+        value: k.value,
+        label: { es: k.labelEs, en: k.labelEn || k.labelEs },
+      }));
     return {
       ...case_,
       slug: state.slug,
-      category: { es: state.categoryEs, en: case_.category.en || state.categoryEs },
+      category: { es: state.categoryEs, en: state.categoryEn || state.categoryEs },
       year: state.year,
-      title: { es: state.titleEs, en: case_.title.en || state.titleEs },
-      teaser: { es: state.teaserEs, en: case_.teaser.en || state.teaserEs },
+      title: { es: state.titleEs, en: state.titleEn || state.titleEs },
+      teaser: { es: state.teaserEs, en: state.teaserEn || state.teaserEs },
       tags: state.tags.split(',').map((t) => t.trim()).filter(Boolean),
       impactType: state.impactType,
       featured: state.featured,
@@ -250,9 +272,74 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
       kpis,
       pia: {
         es: { problem: state.piaProblem, action: state.piaAction, impact: state.piaImpact },
-        en: case_.pia?.en ?? { problem: state.piaProblem, action: state.piaAction, impact: state.piaImpact },
+        en: {
+          problem: state.piaProblemEn || state.piaProblem,
+          action: state.piaActionEn || state.piaAction,
+          impact: state.piaImpactEn || state.piaImpact,
+        },
       },
     };
+  }
+
+  async function applyInstruction() {
+    if (!instruction.trim() || aiLoading) return;
+    setAiLoading(true);
+    setAiError('');
+    try {
+      const res = await fetch('/api/admin/ai/generate-case', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'edit',
+          currentCase: {
+            titleEs: state.titleEs, titleEn: state.titleEn,
+            teaserEs: state.teaserEs, teaserEn: state.teaserEn,
+            categoryEs: state.categoryEs, categoryEn: state.categoryEn,
+            year: state.year,
+            tags: state.tags.split(',').map((t) => t.trim()).filter(Boolean),
+            impactType: state.impactType,
+            piaProblem: state.piaProblem, piaAction: state.piaAction, piaImpact: state.piaImpact,
+            piaProblemEn: state.piaProblemEn, piaActionEn: state.piaActionEn, piaImpactEn: state.piaImpactEn,
+            kpis: state.kpis,
+          },
+          instruction: instruction.trim(),
+        }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { updated: AiEditResult };
+        const u = data.updated;
+        setState((s) => ({
+          ...s,
+          titleEs: u.titleEs ?? s.titleEs,
+          titleEn: u.titleEn ?? s.titleEn,
+          teaserEs: u.teaserEs ?? s.teaserEs,
+          teaserEn: u.teaserEn ?? s.teaserEn,
+          categoryEs: u.categoryEs ?? s.categoryEs,
+          categoryEn: u.categoryEn ?? s.categoryEn,
+          year: u.year ?? s.year,
+          tags: u.tags ? u.tags.join(', ') : s.tags,
+          impactType: (IMPACT_TYPES as readonly string[]).includes(u.impactType)
+            ? (u.impactType as ImpactType)
+            : s.impactType,
+          piaProblem: u.piaProblem ?? s.piaProblem,
+          piaAction: u.piaAction ?? s.piaAction,
+          piaImpact: u.piaImpact ?? s.piaImpact,
+          piaProblemEn: u.piaProblemEn ?? s.piaProblemEn,
+          piaActionEn: u.piaActionEn ?? s.piaActionEn,
+          piaImpactEn: u.piaImpactEn ?? s.piaImpactEn,
+          kpis: u.kpis ?? s.kpis,
+        }));
+        setInstruction('');
+        setSuccess(false);
+      } else {
+        const errBody = (await res.json()) as { error?: string };
+        setAiError(errBody.error ?? `Error ${res.status}`);
+      }
+    } catch {
+      setAiError('Sin conexión. Comprueba la red e inténtalo de nuevo.');
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   async function handleSave() {
@@ -302,7 +389,7 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
     }
   }
 
-  function setKpi(i: number, field: 'value' | 'labelEs', value: string) {
+  function setKpi(i: number, field: 'value' | 'labelEs' | 'labelEn', value: string) {
     setState((s) => ({
       ...s,
       kpis: s.kpis.map((k, idx) => (idx === i ? { ...k, [field]: value } : k)),
@@ -312,7 +399,7 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
 
   function addKpi() {
     if (state.kpis.length >= 4) return;
-    update('kpis', [...state.kpis, { value: '', labelEs: '' }]);
+    update('kpis', [...state.kpis, { value: '', labelEs: '', labelEn: '' }]);
   }
 
   function removeKpi(i: number) {
@@ -339,6 +426,38 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
         </div>
       </div>
 
+      <div className="adm__panel" style={{ marginBottom: 16 }}>
+        <div className="adm__panel-body">
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', marginBottom: 6 }}>
+            ✨ Editar con IA
+          </div>
+          <p style={{ fontSize: 12, color: 'var(--ink-500)', marginBottom: 10 }}>
+            Dile qué cambiar: &quot;cambia el título por…&quot;, &quot;añade un KPI de satisfacción al 92%&quot;, &quot;quita el tag Mobile App&quot;, &quot;actualiza el impacto con estos datos…&quot;
+          </p>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+            <textarea
+              value={instruction}
+              onChange={(e) => setInstruction(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) void applyInstruction(); }}
+              placeholder="Escribe aquí tu instrucción para la IA…"
+              style={{ flex: 1, minHeight: 72, resize: 'vertical' }}
+              disabled={aiLoading}
+            />
+            <button
+              className="btn btn--accent"
+              onClick={() => void applyInstruction()}
+              disabled={aiLoading || !instruction.trim()}
+              style={{ minWidth: 150, whiteSpace: 'nowrap', alignSelf: 'flex-end' }}
+            >
+              {aiLoading ? 'Aplicando…' : '✨ Aplicar cambio'}
+            </button>
+          </div>
+          {aiError && (
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--bad)' }}>⚠ {aiError}</div>
+          )}
+        </div>
+      </div>
+
       <div className="adm__tabs">
         {(['content', 'kpis', 'meta'] as const).map((tk) => (
           <button key={tk} className={`adm__tab ${tab === tk ? 'on' : ''}`} onClick={() => setTab(tk)}>
@@ -358,37 +477,73 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
               </div>
               <div className="adm__field-row">
                 <div className="adm__field">
+                  <label>TÍTULO · ES</label>
+                  <input value={state.titleEs} onChange={(e) => update('titleEs', e.target.value)} />
+                </div>
+                <div className="adm__field">
+                  <label>TÍTULO · EN</label>
+                  <input value={state.titleEn} onChange={(e) => update('titleEn', e.target.value)} />
+                </div>
+              </div>
+              <div className="adm__field-row">
+                <div className="adm__field">
+                  <label>TEASER · ES</label>
+                  <textarea value={state.teaserEs} onChange={(e) => update('teaserEs', e.target.value)} />
+                </div>
+                <div className="adm__field">
+                  <label>TEASER · EN</label>
+                  <textarea value={state.teaserEn} onChange={(e) => update('teaserEn', e.target.value)} />
+                </div>
+              </div>
+              <div className="adm__field-row">
+                <div className="adm__field">
                   <label>CATEGORÍA · ES</label>
                   <input value={state.categoryEs} onChange={(e) => update('categoryEs', e.target.value)} />
                 </div>
                 <div className="adm__field">
+                  <label>CATEGORÍA · EN</label>
+                  <input value={state.categoryEn} onChange={(e) => update('categoryEn', e.target.value)} />
+                </div>
+              </div>
+              <div className="adm__field-row">
+                <div className="adm__field">
                   <label>AÑO</label>
                   <input value={state.year} onChange={(e) => update('year', e.target.value)} />
                 </div>
+                <div className="adm__field">
+                  <label>TAGS (separados por coma)</label>
+                  <input value={state.tags} onChange={(e) => update('tags', e.target.value)} />
+                </div>
               </div>
-              <div className="adm__field">
-                <label>TÍTULO · ES</label>
-                <input value={state.titleEs} onChange={(e) => update('titleEs', e.target.value)} />
+              <div className="adm__field-row">
+                <div className="adm__field">
+                  <label>PIA · PROBLEMA (ES)</label>
+                  <textarea value={state.piaProblem} onChange={(e) => update('piaProblem', e.target.value)} />
+                </div>
+                <div className="adm__field">
+                  <label>PIA · PROBLEMA (EN)</label>
+                  <textarea value={state.piaProblemEn} onChange={(e) => update('piaProblemEn', e.target.value)} />
+                </div>
               </div>
-              <div className="adm__field">
-                <label>TEASER · ES</label>
-                <textarea value={state.teaserEs} onChange={(e) => update('teaserEs', e.target.value)} />
+              <div className="adm__field-row">
+                <div className="adm__field">
+                  <label>PIA · ACCIÓN (ES)</label>
+                  <textarea value={state.piaAction} onChange={(e) => update('piaAction', e.target.value)} />
+                </div>
+                <div className="adm__field">
+                  <label>PIA · ACCIÓN (EN)</label>
+                  <textarea value={state.piaActionEn} onChange={(e) => update('piaActionEn', e.target.value)} />
+                </div>
               </div>
-              <div className="adm__field">
-                <label>TAGS (separados por coma)</label>
-                <input value={state.tags} onChange={(e) => update('tags', e.target.value)} />
-              </div>
-              <div className="adm__field">
-                <label>PIA · PROBLEMA (ES)</label>
-                <textarea value={state.piaProblem} onChange={(e) => update('piaProblem', e.target.value)} />
-              </div>
-              <div className="adm__field">
-                <label>PIA · ACCIÓN (ES)</label>
-                <textarea value={state.piaAction} onChange={(e) => update('piaAction', e.target.value)} />
-              </div>
-              <div className="adm__field">
-                <label>PIA · IMPACTO (ES)</label>
-                <textarea value={state.piaImpact} onChange={(e) => update('piaImpact', e.target.value)} />
+              <div className="adm__field-row">
+                <div className="adm__field">
+                  <label>PIA · IMPACTO (ES)</label>
+                  <textarea value={state.piaImpact} onChange={(e) => update('piaImpact', e.target.value)} />
+                </div>
+                <div className="adm__field">
+                  <label>PIA · IMPACTO (EN)</label>
+                  <textarea value={state.piaImpactEn} onChange={(e) => update('piaImpactEn', e.target.value)} />
+                </div>
               </div>
             </div>
           )}
@@ -399,8 +554,9 @@ function CaseEditor({ case_, onBack, onSaved }: { case_: Case; onBack: () => voi
               <div className="adm__kpi-list">
                 {state.kpis.map((k, i) => (
                   <div key={i} className="adm__kpi-row" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <input value={k.value} onChange={(e) => setKpi(i, 'value', e.target.value)} placeholder="Valor" />
+                    <input value={k.value} onChange={(e) => setKpi(i, 'value', e.target.value)} placeholder="Valor" style={{ maxWidth: 90 }} />
                     <input value={k.labelEs} onChange={(e) => setKpi(i, 'labelEs', e.target.value)} placeholder="Etiqueta ES" />
+                    <input value={k.labelEn} onChange={(e) => setKpi(i, 'labelEn', e.target.value)} placeholder="Etiqueta EN" />
                     <button className="icon-btn" onClick={() => removeKpi(i)} title="Eliminar KPI">✕</button>
                   </div>
                 ))}
