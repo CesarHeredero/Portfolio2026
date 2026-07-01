@@ -35,7 +35,7 @@ export function Hero() {
           <a href="#contact" className="btn btn--ghost btn--lg">
             {t('cta2')}
           </a>
-          <a href="/cv.pdf" className="btn btn--ghost btn--lg" download>
+          <a href="/api/cv/pdf" className="btn btn--ghost btn--lg" download>
             {t('cta3')} ↓
           </a>
         </div>

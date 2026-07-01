@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AdmIcon } from '../icons';
 import type { Case, ImpactType, KPI } from '@/lib/content';
+import { CaseWizard } from './case-wizard';
 
 type Status = 'published' | 'draft';
 type Filter = 'all' | Status;
@@ -15,6 +16,7 @@ export function CasesSection() {
   const [saving, setSaving] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showWizard, setShowWizard] = useState(false);
 
   const loadCases = useCallback(async () => {
     setLoading(true);
@@ -96,6 +98,19 @@ export function CasesSection() {
     }
   }
 
+  if (showWizard) {
+    return (
+      <CaseWizard
+        onBack={() => setShowWizard(false)}
+        onCreated={(id) => {
+          void loadCases();
+          setShowWizard(false);
+          setEditingId(id);
+        }}
+      />
+    );
+  }
+
   if (editingId) {
     const editing = cases.find((c) => c.id === editingId);
     if (editing) {
@@ -121,9 +136,14 @@ export function CasesSection() {
             <button aria-pressed={filter === 'draft'} onClick={() => setFilter('draft')}>BORRADOR · {counts.draft}</button>
           </div>
         </div>
-        <button className="btn btn--accent" onClick={() => void createCase()} disabled={saving === '__new__'}>
-          {saving === '__new__' ? 'Creando…' : '+ Nuevo caso'}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn--ghost" onClick={() => void createCase()} disabled={saving === '__new__'}>
+            {saving === '__new__' ? 'Creando…' : '+ Nuevo (manual)'}
+          </button>
+          <button className="btn btn--accent" onClick={() => setShowWizard(true)}>
+            ✨ Generar con IA
+          </button>
+        </div>
       </div>
 
       {loading ? (

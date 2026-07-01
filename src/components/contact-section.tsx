@@ -7,7 +7,7 @@ export function ContactSection() {
     { label: t('emailLabel'), value: t('email'), href: `mailto:${t('email')}`, icon: '✉' },
     { label: t('linkedinLabel'), value: t('linkedin'), href: `https://${t('linkedin')}`, icon: 'in' },
     { label: t('calLabel'), value: t('cal'), href: `https://${t('cal')}`, icon: '📅' },
-    { label: t('cvLabel'), value: t('cv'), href: '/cv.pdf', icon: '↓' },
+    { label: t('cvLabel'), value: t('cv'), href: '/api/cv/pdf', icon: '↓' },
   ];
 
   return (
