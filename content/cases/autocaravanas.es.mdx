@@ -1,0 +1,59 @@
+---
+slug: autocaravanas
+title: Nueva línea de negocio: abrir el marketplace a vehículos de ocio
+category: PRODUCTO & MARKETPLACE
+year: "2024"
+impactType: product
+featured: true
+tags:
+  - Producto desde cero
+  - Marketplace
+  - Feed de datos
+  - SEO
+kpis:
+  - value: "1"
+    label: Línea de negocio nueva
+  - value: "9+"
+    label: Fases de integración
+---
+
+## Contexto
+
+Flexicar operaba exclusivamente en el segmento de turismos de segunda mano. El mercado de vehículos de ocio (autocaravanas, campers, furgonetas camperizadas) mostraba un crecimiento sostenido post-pandemia con márgenes superiores y menos competencia digital directa.
+
+La oportunidad era clara: expandir el marketplace sin necesidad de nueva infraestructura de tiendas físicas, aprovechando la plataforma existente.
+
+## Problema
+
+- **Catálogo inexistente**: no había ningún vehículo de ocio en el inventario.
+- **UX no adaptada**: los filtros de búsqueda estaban diseñados para turismos (CV, plazas, puertas). Las autocaravanas tienen atributos completamente distintos (longitud, camas, depósito).
+- **Sin proveedor de stock**: necesitábamos un feed de datos de autocaravanas con cobertura nacional.
+- **SEO desde cero**: ninguna autoridad en el sector, sin arquitectura de URLs ni sitemaps para el vertical.
+- **Riesgo de canibalización**: expandir el catálogo sin estructura correcta podría diluir el SEO principal.
+
+## Acción
+
+### Fase 1-3: Discovery y viabilidad
+
+- Research de mercado: análisis de competidores, volumen de búsqueda por categoría, precio medio.
+- Identificación y evaluación de 3 proveedores potenciales de feed de autocaravanas.
+- Validación técnica: compatibilidad del feed con la estructura de datos existente.
+- Definición del MVP: qué atributos mínimos necesita una ficha para ser útil.
+
+### Fases 4-6: Arquitectura de producto y datos
+
+- Diseño de la arquitectura de URLs: `/autocaravanas/[marca]/[modelo]/` con canonical correctos.
+- Especificación de los filtros nuevos: tipo (integral, perfilada, capuchina, camper), longitud, plazas de dormir.
+- Modelo de datos extendido para el feed del proveedor.
+- Sitemaps independientes para el vertical de ocio.
+
+### Fases 7-9: Implementación y lanzamiento
+
+- Coordinación con Dev para la integración del feed y el renderizado de fichas.
+- QA de las 500 primeras fichas: imágenes, precios, atributos, URLs canónicas.
+- Configuración de Schema.org: `Vehicle` + `Offer` para cada ficha.
+- Lanzamiento escalonado por marca y plan de monitorización en Search Console.
+
+## Impacto
+
+Nueva línea de negocio activa en el marketplace, accesible tanto en España como en Portugal. El vertical de autocaravanas se convirtió en una fuente de tráfico orgánico incremental con búsquedas de alta intención y menor competencia SEO que el segmento de turismos.

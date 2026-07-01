@@ -1,0 +1,272 @@
+[
+  {
+    "id": "blog-headless",
+    "slug": "blog-headless",
+    "category": { "es": "PRODUCTO & CONTENIDO", "en": "PRODUCT & CONTENT" },
+    "year": "2025",
+    "title": {
+      "es": "Migración del blog a un CMS headless dentro del dominio principal",
+      "en": "Blog migration to a headless CMS inside the main domain"
+    },
+    "teaser": {
+      "es": "El blog vivía en un subdominio separado. Google lo trataba como otro sitio. Lo mudamos al dominio principal con CMS headless, +1.000 artículos migrados y autonomía total para Marketing.",
+      "en": "The blog lived on a separate subdomain. Google treated it as another site. We moved it into the main domain with a headless CMS, +1,000 articles migrated, and full autonomy for Marketing."
+    },
+    "kpis": [
+      { "value": "1.092", "label": { "es": "URLs migradas", "en": "URLs migrated" } },
+      { "value": "13", "label": { "es": "Tipos de bloque", "en": "Block types" } },
+      { "value": "100%", "label": { "es": "Tráfico orgánico preservado", "en": "Organic traffic preserved" } }
+    ],
+    "tags": ["CMS Headless", "SEO técnico", "Schema.org", "Accesibilidad", "301"],
+    "impactType": "content",
+    "featured": true,
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "Blog en subdominio diluye autoridad SEO y bloquea contenido interactivo.",
+        "action": "Migración a CMS headless en dominio principal con 13 bloques editoriales y A11Y AA.",
+        "impact": "1.092 URLs migradas, 100% del tráfico preservado."
+      },
+      "en": {
+        "problem": "Blog on a subdomain dilutes SEO authority and blocks interactive content.",
+        "action": "Migration to headless CMS in main domain with 13 editorial blocks and AA accessibility.",
+        "impact": "1,092 URLs migrated, 100% traffic preserved."
+      }
+    }
+  },
+  {
+    "id": "sgtm",
+    "slug": "server-side-gtm",
+    "category": { "es": "DATA & PRIVACIDAD", "en": "DATA & PRIVACY" },
+    "year": "2025",
+    "title": {
+      "es": "Recuperar el 28% de usuarios invisibles con medición server-side",
+      "en": "Recovering 28% of invisible users with server-side tracking"
+    },
+    "teaser": {
+      "es": "Safari borra cookies a los 7 días y el 28% de usuarios rechaza el tracking. Movimos la medición a un servidor propio para ver a todos los usuarios y conectar web con CRM.",
+      "en": "Safari clears cookies in 7 days and 28% of users reject tracking. We moved tracking to our own server to see every user and connect web with CRM."
+    },
+    "kpis": [
+      { "value": "28%", "label": { "es": "Usuarios recuperados", "en": "Users recovered" } },
+      { "value": "7d → 2a", "label": { "es": "Vida de cookie", "en": "Cookie lifetime" } },
+      { "value": "4", "label": { "es": "Equipos coordinados", "en": "Teams coordinated" } }
+    ],
+    "tags": ["GTM Server-Side", "BigQuery", "First-Party", "RGPD", "Meta CAPI"],
+    "impactType": "data",
+    "featured": true,
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "Safari borra cookies a los 7 días; 28% rechaza tracking.",
+        "action": "Medición server-side en first-party + BigQuery + CRM.",
+        "impact": "28% de usuarios recuperados; vida de cookie 7d → 2 años."
+      },
+      "en": {
+        "problem": "Safari clears cookies in 7 days; 28% reject tracking.",
+        "action": "Server-side first-party tracking + BigQuery + CRM.",
+        "impact": "28% users recovered; cookie life 7d → 2 years."
+      }
+    }
+  },
+  {
+    "id": "ips",
+    "slug": "ips-fraudulentas",
+    "category": { "es": "SEO & SEGURIDAD", "en": "SEO & SECURITY" },
+    "year": "2025",
+    "title": {
+      "es": "Detección y bloqueo de +300 IPs generando enlaces fraudulentos",
+      "en": "Detection and blocking of 300+ IPs generating fraudulent backlinks"
+    },
+    "teaser": {
+      "es": "Google Search Console detectó 300+ IPs creando enlaces falsos. Si Google interpreta trampas, penaliza. Coordinamos auditoría, bloqueo WAF y limpieza Disavow.",
+      "en": "300+ IPs were creating fake backlinks. Left unchecked, Google penalizes. We coordinated audit, WAF block and Disavow cleanup."
+    },
+    "kpis": [
+      { "value": "300+", "label": { "es": "IPs neutralizadas", "en": "IPs neutralized" } },
+      { "value": "3", "label": { "es": "Fases de respuesta", "en": "Response phases" } }
+    ],
+    "tags": ["Search Console", "WAF", "Disavow", "Gestión de incidentes"],
+    "impactType": "seo",
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "300+ IPs creaban enlaces falsos; riesgo de penalización de Google.",
+        "action": "Auditoría, bloqueo WAF y limpieza Disavow en 3 fases.",
+        "impact": "Autoridad de dominio protegida; protocolo reutilizable."
+      },
+      "en": {
+        "problem": "300+ IPs were creating fake backlinks; Google penalty risk.",
+        "action": "Audit, WAF block and Disavow cleanup in 3 phases.",
+        "impact": "Domain authority protected; reusable protocol."
+      }
+    }
+  },
+  {
+    "id": "whatsapp",
+    "slug": "whatsapp-tasacion",
+    "category": { "es": "UX & CONVERSIÓN", "en": "UX & CONVERSION" },
+    "year": "2024",
+    "title": {
+      "es": "WhatsApp en el funnel de tasación: de dudas a citas en tienda",
+      "en": "WhatsApp inside the appraisal funnel: from doubts to in-store appointments"
+    },
+    "teaser": {
+      "es": "El usuario que quiere tasar su vehículo pasa por 3 pasos. Muchos abandonaban. Añadimos WhatsApp en cada paso y alineamos al equipo en el objetivo real: cita presencial.",
+      "en": "Users drop off along a 3-step appraisal. We added WhatsApp at each step and aligned the team on the real goal: in-store appointment."
+    },
+    "kpis": [
+      { "value": "4", "label": { "es": "Escenarios de uso", "en": "Use cases" } },
+      { "value": "3", "label": { "es": "Pasos del funnel", "en": "Funnel steps" } }
+    ],
+    "tags": ["Flujos de conversión", "Multicanal", "CRM", "MVP"],
+    "impactType": "ux",
+    "featured": true,
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "Abandono alto en funnel de tasación; sólo canal telefónico.",
+        "action": "WhatsApp en 4 escenarios + alineación al objetivo real (cita en tienda).",
+        "impact": "Canal de baja fricción operativo; más citas presenciales."
+      },
+      "en": {
+        "problem": "High drop-off in appraisal funnel; phone-only channel.",
+        "action": "WhatsApp in 4 scenarios + alignment on real goal (in-store appointment).",
+        "impact": "Low-friction channel live; more in-store appointments."
+      }
+    }
+  },
+  {
+    "id": "tag-gateway",
+    "slug": "tag-gateway",
+    "category": { "es": "DATA & WPO", "en": "DATA & WPO" },
+    "year": "2024",
+    "title": {
+      "es": "Servir Analytics desde nuestro dominio para escapar de los adblockers",
+      "en": "Serving Analytics from our own domain to bypass adblockers"
+    },
+    "teaser": {
+      "es": "Los adblockers bloquean llamadas a dominios externos. Con Tag Gateway servimos los scripts desde nuestro dominio: los datos llegan y la web carga más rápido.",
+      "en": "Adblockers block calls to external domains. With Tag Gateway we serve the scripts from our own domain: data arrives, web loads faster."
+    },
+    "kpis": [
+      { "value": "3", "label": { "es": "Fases de implementación", "en": "Implementation phases" } }
+    ],
+    "tags": ["Tag Gateway", "CDN", "First-Party"],
+    "impactType": "data",
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "Adblockers bloquean Analytics; pérdida de datos.",
+        "action": "Tag Gateway sirviendo scripts desde nuestro dominio.",
+        "impact": "Datos de conversión más fiables; mejor velocidad."
+      },
+      "en": {
+        "problem": "Adblockers block Analytics; data loss.",
+        "action": "Tag Gateway serving scripts from our own domain.",
+        "impact": "More reliable conversion data; better speed."
+      }
+    }
+  },
+  {
+    "id": "autocaravanas",
+    "slug": "autocaravanas",
+    "category": { "es": "PRODUCTO & MARKETPLACE", "en": "PRODUCT & MARKETPLACE" },
+    "year": "2024",
+    "title": {
+      "es": "Nueva línea de negocio: abrir el marketplace a vehículos de ocio",
+      "en": "New business line: opening the marketplace to leisure vehicles"
+    },
+    "teaser": {
+      "es": "Solo vendíamos turismos. Detectamos una oportunidad en autocaravanas y diseñamos la experiencia desde cero: filtros, ficha, nuevo proveedor de stock, arquitectura SEO.",
+      "en": "We only sold cars. We spotted an opportunity in motorhomes and designed the experience from scratch: filters, listing, new stock provider, SEO architecture."
+    },
+    "kpis": [
+      { "value": "1", "label": { "es": "Línea de negocio nueva", "en": "New business line" } },
+      { "value": "9+", "label": { "es": "Fases de integración", "en": "Integration phases" } }
+    ],
+    "tags": ["Producto desde cero", "Marketplace", "Feed de datos", "SEO"],
+    "impactType": "product",
+    "featured": true,
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "Marketplace limitado a turismos; techo de crecimiento.",
+        "action": "Nueva línea de autocaravanas desde cero: feed, filtros, SEO.",
+        "impact": "Nueva fuente de ingresos en vertical de alto margen."
+      },
+      "en": {
+        "problem": "Marketplace limited to cars; growth ceiling.",
+        "action": "New motorhome line from scratch: feed, filters, SEO.",
+        "impact": "New revenue stream in high-margin vertical."
+      }
+    }
+  },
+  {
+    "id": "wpo",
+    "slug": "rendimiento-web",
+    "category": { "es": "RENDIMIENTO WEB", "en": "WEB PERFORMANCE" },
+    "year": "2024",
+    "title": {
+      "es": "Demostrar con datos que las etiquetas no eran lo que ralentizaba la web",
+      "en": "Proving with data that tags were not what was slowing the site"
+    },
+    "teaser": {
+      "es": "La web tardaba hasta 30s en móvil. El equipo culpaba a las etiquetas de Google. Monté auditorías antes/después de cada cambio. Resultado: el problema real era otro.",
+      "en": "The site took up to 30s on mobile. The team blamed Google tags. I set up before/after audits on every release. The real problem was elsewhere."
+    },
+    "kpis": [
+      { "value": "10+", "label": { "es": "Auditorías", "en": "Audits" } },
+      { "value": "+528ms", "label": { "es": "Impacto real de etiquetas", "en": "Real tag impact" } },
+      { "value": "16", "label": { "es": "URLs por muestreo", "en": "Sample URLs" } }
+    ],
+    "tags": ["Core Web Vitals", "Lighthouse", "Pre/post", "Decisiones con datos"],
+    "impactType": "performance",
+    "status": "published",
+    "pia": {
+      "es": {
+        "problem": "Web lenta (LCP 30s); equipo culpaba a etiquetas sin datos.",
+        "action": "Protocolo de auditoría pre/post sobre 16 URLs y dashboards.",
+        "impact": "Foco redirigido a causa real; cultura de medición."
+      },
+      "en": {
+        "problem": "Slow site (LCP 30s); team blamed tags without data.",
+        "action": "Pre/post audit protocol on 16 URLs + dashboards.",
+        "impact": "Focus redirected to real cause; measurement culture."
+      }
+    }
+  },
+  {
+    "id": "seo-30k",
+    "slug": "indexacion-30k",
+    "category": { "es": "SEO TÉCNICO", "en": "TECHNICAL SEO" },
+    "year": "2024",
+    "title": {
+      "es": "Preparar +30.000 fichas de vehículos para que Google las indexe bien",
+      "en": "Preparing 30,000+ vehicle listings for proper Google indexing"
+    },
+    "teaser": {
+      "es": "+30.000 coches pero Google no los encontraba todos, y los filtros generaban miles de duplicados. Redieseñé sitemaps, datos estructurados y reglas de indexación.",
+      "en": "30,000+ cars but Google did not find them all, and filters generated thousands of duplicates. I redesigned sitemaps, structured data and indexing rules."
+    },
+    "kpis": [
+      { "value": "30K+", "label": { "es": "URLs gestionadas", "en": "URLs managed" } },
+      { "value": "5", "label": { "es": "Tipos de Schema", "en": "Schema types" } }
+    ],
+    "tags": ["Sitemaps", "Schema.org", "Canonical", "Enlazado interno"],
+    "impactType": "seo",
+    "status": "draft",
+    "pia": {
+      "es": {
+        "problem": "30K+ fichas sin sitemaps; filtros generan duplicados.",
+        "action": "Sitemaps segmentados, canonical y 5 tipos de Schema.",
+        "impact": "Fichas indexables; fin del contenido duplicado."
+      },
+      "en": {
+        "problem": "30K+ listings without sitemaps; filters create duplicates.",
+        "action": "Segmented sitemaps, canonical and 5 Schema types.",
+        "impact": "Listings indexable; duplicate content gone."
+      }
+    }
+  }
+]

@@ -1,0 +1,62 @@
+---
+slug: rendimiento-web
+title: Demostrar con datos que las etiquetas no eran lo que ralentizaba la web
+category: RENDIMIENTO WEB
+year: "2024"
+impactType: performance
+tags:
+  - Core Web Vitals
+  - Lighthouse
+  - Pre/post
+  - Decisiones con datos
+kpis:
+  - value: "10+"
+    label: Auditorías
+  - value: "+528ms"
+    label: Impacto real de etiquetas
+  - value: "16"
+    label: URLs por muestreo
+---
+
+## Contexto
+
+La web de Flexicar tenía tiempos de carga inaceptables en móvil: LCP (Largest Contentful Paint) llegaba a 30 segundos en páginas de ficha de vehículo. Cada vez que se publicaba un nuevo tag de Marketing en GTM, el equipo de Dev señalaba los tags como causa del problema.
+
+El problema: nadie tenía datos para confirmar o refutar esa hipótesis.
+
+## Problema
+
+- **Hipótesis sin datos**: la culpa recaía en los tags por intuición, no por medición.
+- **Sin protocolo de auditoría**: cada release se hacía sin medir el antes y el después.
+- **Fricción entre equipos**: Dev quería congelar tags, Marketing necesitaba seguir publicando.
+- **Causa raíz desconocida**: si los tags no eran el problema real, el verdadero cuello de botella seguía sin identificarse.
+
+## Acción
+
+### Diseño del protocolo de auditoría
+
+Establecí un método de medición sistemático pre/post para cada cambio:
+
+1. **Muestra de 16 URLs representativas** por sección (home, listado, ficha, blog, institucional).
+2. **Medición en 3 condiciones**: con todos los tags activos, con GTM desactivado, con caché vacía.
+3. **Herramientas combinadas**: Lighthouse CLI + WebPageTest (múltiples ubicaciones) + CrUX (datos reales).
+4. **Métricas registradas**: LCP, FID/INP, CLS, TTFB, Total Blocking Time.
+
+### Ejecución de auditorías
+
+- +10 auditorías realizadas sobre 16 URLs durante 6 meses.
+- Correlación de tiempos con el historial de publicaciones en GTM.
+- Dashboard en Looker Studio con evolución temporal de Core Web Vitals.
+
+### Hallazgo principal
+
+El impacto medido de **todos los tags combinados** en el LCP fue de **+528ms**. Un porcentaje del problema, no la causa principal.
+
+Las causas reales identificadas: imágenes sin optimizar (WebP no aplicado en fichas), render-blocking CSS de terceros, y tiempo de respuesta del servidor por consultas de base de datos no cacheadas.
+
+## Impacto
+
+- El debate "tags vs rendimiento" se cerró con datos, no con opiniones.
+- El equipo de Dev redirigió el foco a las causas reales: optimización de imágenes y caché de servidor.
+- Se estableció un protocolo de auditoría pre/post que el equipo sigue usando en cada release mayor.
+- El dashboard de Core Web Vitals se convirtió en parte del proceso de QA.

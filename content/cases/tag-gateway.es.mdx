@@ -1,0 +1,52 @@
+---
+slug: tag-gateway
+title: Servir Analytics desde nuestro dominio para escapar de los adblockers
+category: DATA & WPO
+year: "2024"
+impactType: data
+tags:
+  - Tag Gateway
+  - CDN
+  - First-Party
+kpis:
+  - value: "3"
+    label: Fases de implementación
+---
+
+## Contexto
+
+Los adblockers bloquean llamadas a dominios de terceros conocidos: `google-analytics.com`, `googletagmanager.com`, `connect.facebook.net`. Un porcentaje creciente de usuarios (especialmente en segmentos tech) navega con adblockers activos, lo que provoca pérdida de datos analíticos y de conversión.
+
+## Problema
+
+- **Pérdida de datos**: las peticiones a dominios externos de analytics son bloqueadas en el navegador.
+- **Scripts externos lentos**: cargar scripts de terceros añade latencia de red y bloquea el render.
+- **Dependencia de terceros**: si Google cambia una URL, hay que actualizar configuración.
+- **Datos incompletos**: las decisiones de producto y marketing se tomaban sobre datos parciales.
+
+## Acción
+
+### Fase 1 — Arquitectura
+
+- Selección del enfoque Tag Gateway: proxy de scripts analytics en subdominio propio (`cdn.flexicar.es`).
+- Definición del modelo de caché y TTL para cada tipo de script.
+- Especificación de seguridad: cabeceras CORS, CSP updates, SRI.
+
+### Fase 2 — Implementación
+
+- Configuración del proxy en la infraestructura CDN existente.
+- Actualización de GTM para referenciar los scripts desde el dominio propio.
+- Testing de bloqueo: verificación con uBlock Origin, AdBlock Plus y Brave Shield activos.
+- Medición de impacto en Core Web Vitals: comparativa pre/post en PageSpeed Insights.
+
+### Fase 3 — Monitorización y ajuste
+
+- Dashboard de comparación: datos recibidos via Tag Gateway vs cliente directo.
+- Protocolo de actualización cuando los scripts de origen cambian de versión.
+- Documentación para el equipo de Infra y Dev.
+
+## Impacto
+
+Los datos de conversión se volvieron más fiables al capturar eventos de usuarios que anteriormente eran invisibles por el uso de adblockers. La velocidad de carga mejoró al servir scripts desde la propia CDN en lugar de dominios externos.
+
+El proyecto sirvió como base para la posterior implementación de GTM Server-Side.

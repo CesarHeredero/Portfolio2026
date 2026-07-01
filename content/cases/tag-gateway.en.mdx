@@ -1,0 +1,52 @@
+---
+slug: tag-gateway
+title: Serving Analytics from our own domain to bypass adblockers
+category: DATA & WPO
+year: "2024"
+impactType: data
+tags:
+  - Tag Gateway
+  - CDN
+  - First-Party
+kpis:
+  - value: "3"
+    label: Implementation phases
+---
+
+## Context
+
+Adblockers block calls to known third-party domains: `google-analytics.com`, `googletagmanager.com`, `connect.facebook.net`. A growing percentage of users (especially in tech segments) browse with active adblockers, causing loss of analytics and conversion data.
+
+## Problem
+
+- **Data loss**: browser adblockers block requests to external analytics domains.
+- **Slow external scripts**: loading third-party scripts adds network latency and blocks rendering.
+- **Third-party dependency**: if Google changes a URL, configuration must be updated.
+- **Incomplete data**: product and marketing decisions were made on partial data.
+
+## Action
+
+### Phase 1 — Architecture
+
+- Tag Gateway approach selection: analytics script proxy on own subdomain (`cdn.flexicar.es`).
+- Cache model and TTL definition for each script type.
+- Security specification: CORS headers, CSP updates, SRI.
+
+### Phase 2 — Implementation
+
+- Proxy configuration on existing CDN infrastructure.
+- GTM update to reference scripts from own domain.
+- Block testing: verification with uBlock Origin, AdBlock Plus and Brave Shield active.
+- Core Web Vitals impact measurement: pre/post comparison in PageSpeed Insights.
+
+### Phase 3 — Monitoring & adjustment
+
+- Comparison dashboard: data received via Tag Gateway vs direct client.
+- Update protocol when source scripts change version.
+- Documentation for Infra and Dev teams.
+
+## Impact
+
+Conversion data became more reliable by capturing events from users previously invisible due to adblocker usage. Page load speed improved by serving scripts from our own CDN instead of external domains.
+
+This project served as the foundation for the subsequent GTM Server-Side implementation.

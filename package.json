@@ -7,20 +7,29 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "migrate": "tsx scripts/migrate-content.ts"
   },
   "dependencies": {
-    "next": "15.3.2",
+    "@anthropic-ai/sdk": "^0.109.0",
+    "@next/third-parties": "^15.3.2",
+    "@octokit/rest": "^21.1.0",
+    "@react-pdf/renderer": "^4.5.1",
+    "next": "^15.3.9",
+    "next-auth": "^5.0.0-beta.28",
+    "next-intl": "3.26.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next-intl": "3.26.3"
+    "resend": "^4.2.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
-    "typescript": "^5.8.3",
     "eslint": "^9.27.0",
-    "eslint-config-next": "15.3.2"
+    "eslint-config-next": "15.3.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }

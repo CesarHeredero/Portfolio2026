@@ -1,0 +1,97 @@
+{
+  "name": "César Heredero Herranz",
+  "role": "Senior Product Owner & UX Strategist",
+  "company": "Flexicar",
+  "location": "Madrid",
+  "remoteOk": true,
+  "email": "hola@cesarheredero.com",
+  "linkedin": "https://www.linkedin.com/in/cesarheredero",
+  "readCv": "https://read.cv/cesarheredero",
+  "cal": "https://cal.com/cesarheredero",
+  "baseUrl": "https://cesarheredero.com",
+  "content": {
+    "hero": {
+      "pretitle": "",
+      "title": { "es": "", "en": "" },
+      "sub": { "es": "", "en": "" },
+      "idName": "",
+      "roleValue": "",
+      "expValue": "",
+      "locationValue": "",
+      "cta1": "",
+      "cta2": "",
+      "cta3": ""
+    },
+    "bento": {
+      "roleValue": "",
+      "roleCompany": "",
+      "seekingRoles": "",
+      "kpiValue": "",
+      "kpiLabel": "",
+      "clientsValue": "",
+      "awardValue": "",
+      "capabilities": ""
+    },
+    "about": {
+      "name": "",
+      "roleTag": "",
+      "bio": { "es": "", "en": "" },
+      "expValue": "",
+      "locationValue": "",
+      "langValue": "",
+      "companyValue": "",
+      "q1Title": "",
+      "q1Desc": "",
+      "q2Title": "",
+      "q2Desc": "",
+      "q3Title": "",
+      "q3Desc": "",
+      "q4Title": "",
+      "q4Desc": ""
+    },
+    "process": {
+      "step1Title": "",
+      "step1Desc": "",
+      "step2Title": "",
+      "step2Desc": "",
+      "step3Title": "",
+      "step3Desc": "",
+      "step4Title": "",
+      "step4Desc": "",
+      "step5Title": "",
+      "step5Desc": "",
+      "step6Title": "",
+      "step6Desc": "",
+      "step7Title": "",
+      "step7Desc": "",
+      "step8Title": "",
+      "step8Desc": ""
+    },
+    "contact": {
+      "title": "",
+      "intro": "",
+      "email": "",
+      "linkedin": "",
+      "cal": ""
+    },
+    "footer": {
+      "pitch": ""
+    },
+    "statusBar": {
+      "role": ""
+    }
+  },
+  "availability": {
+    "status": "open",
+    "options": [
+      { "key": "searching", "tone": "live" },
+      { "key": "open", "tone": "live" },
+      { "key": "freelance", "tone": "live" },
+      { "key": "consulting", "tone": "live" },
+      { "key": "collab", "tone": "live" },
+      { "key": "selective", "tone": "soft" },
+      { "key": "busy", "tone": "mute" },
+      { "key": "hidden", "tone": "hidden" }
+    ]
+  }
+}
