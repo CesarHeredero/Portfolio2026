@@ -3,6 +3,8 @@
 Portfolio profesional de César Heredero, Senior Product Owner & UX Strategist.
 Web pública en **cesarheredero.com** · Panel de gestión en **cesarheredero.com/admin**
 
+> Última actualización: 2026-07-01
+
 ---
 
 ## ¿Qué es este proyecto?
