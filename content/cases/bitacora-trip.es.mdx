@@ -1,0 +1,40 @@
+## Por qué construí esta app
+
+Planificar un viaje de 13 días en camper por 7 países europeos implica coordinar cientos de variables: dónde dormir cada noche, qué autopistas llevan viñeta obligatoria, si el país acepta mascotas en áreas de servicio, cuántos kilómetros puedes hacer en un día sin agotarte.
+
+Las apps existentes resuelven partes del problema —Google Maps para rutas, Park4Night para campings, Instagram para inspiración— pero ninguna lo integra en un solo lugar orientado al viaje largo en camper. Decidí construir lo que necesitaba.
+
+## Qué hace Bitácora
+
+### Itinerario día a día
+
+El corazón de la app. Cada etapa tiene: punto de partida, destino, kilómetros estimados, lugar de pernocta, actividades planificadas y notas libres. Ver el viaje completo de un vistazo —15 etapas, 8 países— permite detectar días demasiado cargados o tramos sin plan.
+
+**SUPERVIAJAZO 2026** fue el primer viaje planificado con la app: Algete → Zuera → Carcasona → Lago de Orta → Lago de Garda → Liubliana → Lago Bled → Valle del Soča → Hallstatt → Königssee → Liechtenstein → Lindau → Annecy → Algete.
+
+### Gestión de fotos
+
+Las fotos se suben desde el móvil durante el viaje y se asocian automáticamente al día de la etapa. El resultado es un álbum cronológico organizado por ruta, no por fecha de carga.
+
+### Información por país
+
+Para cada país del itinerario, la app almacena información práctica: normativa de campistop, requisitos de entrada con mascotas, viñetas de autopista (Austria, Suiza, Eslovenia…), bono de datos móviles. Datos que de otro modo estarían dispersos en 10 pestañas del navegador.
+
+### Resúmenes con IA
+
+Integración con modelos de lenguaje para generar resúmenes narrativos de cada día: útiles para escribir el post del viaje o como ayuda memoria semanas después.
+
+## Stack técnico
+
+- **Frontend**: TypeScript
+- **Backend**: PocketBase (self-hosted en VPS, 0 €/mes)
+- **IA**: Modelos de lenguaje para resúmenes automáticos
+- **Hosting**: VPS propio junto con el resto de servicios
+
+La decisión de usar PocketBase en lugar de un backend custom fue deliberada: es un binario único, tiene autenticación lista, API REST y sistema de archivos para las fotos. Tiempo de setup: menos de una hora.
+
+## Lo que aprendí construyendo para ti mismo
+
+El primer prototipo tenía más funciones de las que usaba. Después de planificar el SUPERVIAJAZO con la app en la mano, quedó claro qué importaba de verdad y qué era ruido.
+
+Construir para un usuario real —yo mismo— tiene una ventaja: el feedback es inmediato y sin filtros.

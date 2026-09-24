@@ -1,0 +1,40 @@
+## Why I built this app
+
+Planning a 13-day camper trip across 7 European countries means coordinating hundreds of variables: where to sleep each night, which highways require a vignette, whether the country accepts pets at service areas, how many kilometres you can drive in a day without burning out.
+
+Existing apps solve parts of the problem —Google Maps for routes, Park4Night for campsites, Instagram for inspiration— but none integrates them in a single place designed for long-distance camper travel. I decided to build what I needed.
+
+## What Bitácora does
+
+### Day-by-day itinerary
+
+The core of the app. Each stage has: starting point, destination, estimated kilometres, overnight spot, planned activities and free notes. Seeing the full trip at a glance —15 stages, 8 countries— makes it easy to spot days that are too heavy or stretches with no plan.
+
+**SUPERVIAJAZO 2026** was the first trip planned with the app: Algete → Zuera → Carcassonne → Lake Orta → Lake Garda → Ljubljana → Lake Bled → Soča Valley → Hallstatt → Königssee → Liechtenstein → Lindau → Annecy → Algete.
+
+### Photo management
+
+Photos are uploaded from the phone during the trip and automatically linked to the stage day. The result is a chronological album organised by route, not by upload date.
+
+### Per-country information
+
+For each country in the itinerary, the app stores practical info: camperstop rules, pet entry requirements, highway vignettes (Austria, Switzerland, Slovenia…), mobile data packages. Data that would otherwise be scattered across 10 browser tabs.
+
+### AI summaries
+
+Integration with language models to generate narrative summaries of each day: useful for writing the trip post or as a memory aid weeks later.
+
+## Tech stack
+
+- **Frontend**: TypeScript
+- **Backend**: PocketBase (self-hosted on VPS, €0/month)
+- **AI**: Language models for automatic summaries
+- **Hosting**: Own VPS alongside the rest of the services
+
+The decision to use PocketBase instead of a custom backend was deliberate: it's a single binary, comes with auth out of the box, a REST API and a file system for photos. Setup time: under an hour.
+
+## What I learned building for myself
+
+The first prototype had more features than I used. After planning SUPERVIAJAZO with the app in hand, it became clear what really mattered and what was noise.
+
+Building for a real user —myself— has one advantage: feedback is immediate and unfiltered.

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { type Locale } from '@/lib/content';
 import { loadCases, getCaseBySlugStore, getRelatedCasesStore } from '@/lib/content-store';
@@ -70,24 +71,32 @@ export default async function CaseDetailPage({ params }: Props) {
   const { locale, slug } = await params;
   const c = await getCaseBySlugStore(slug);
 
-  if (!c || (c.status ?? 'published') === 'draft') notFound();
+  if (!c) notFound();
+  const safeCase = c as NonNullable<typeof c>;
+
+  const isDraft = (safeCase.status ?? 'published') === 'draft';
+  if (isDraft) {
+    const cookieStore = await cookies();
+    const isAdmin = cookieStore.get('ch_admin')?.value === 'authenticated';
+    if (!isAdmin) notFound();
+  }
 
   const l = locale as Locale;
-  const related = await getRelatedCasesStore(c.id);
+  const related = await getRelatedCasesStore(safeCase.id);
   const t = await getTranslations({ locale, namespace: 'case' });
   const tw = await getTranslations({ locale, namespace: 'work' });
 
   const caseJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
-    name: c.title[l],
-    description: c.teaser[l],
+    name: safeCase.title[l],
+    description: safeCase.teaser[l],
     author: {
       '@type': 'Person',
       name: 'César Heredero',
     },
-    dateCreated: c.year,
-    keywords: c.tags.join(', '),
+    dateCreated: safeCase.year,
+    keywords: safeCase.tags.join(', '),
   };
 
   return (
@@ -97,7 +106,7 @@ export default async function CaseDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(caseJsonLd) }}
       />
       <CaseDetail
-        case_={c}
+        case_={safeCase}
         locale={l}
         related={related}
         backLabel={t('back')}
@@ -108,6 +117,7 @@ export default async function CaseDetailPage({ params }: Props) {
         relatedLabel={t('relatedCases')}
         readCaseLabel={tw('readCase')}
         featuredLabel={tw('featured')}
+        isDraft={isDraft}
       />
       <Footer />
     </>

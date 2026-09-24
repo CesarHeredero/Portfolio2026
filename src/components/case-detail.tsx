@@ -14,6 +14,7 @@ type Props = {
   relatedLabel: string;
   readCaseLabel: string;
   featuredLabel: string;
+  isDraft?: boolean;
 };
 
 export function CaseDetail({
@@ -28,6 +29,7 @@ export function CaseDetail({
   relatedLabel,
   readCaseLabel,
   featuredLabel,
+  isDraft,
 }: Props) {
   const pia = case_.pia?.[locale] ?? PIA_SUMMARY[case_.id]?.[locale];
   const workPath = locale === 'es' ? '/trabajo' : '/work';
@@ -35,6 +37,11 @@ export function CaseDetail({
 
   return (
     <main className="cd" id="main-content">
+      {isDraft && (
+        <div className="cd__draft-banner" role="status">
+          Borrador — solo visible para ti mientras estás en el admin
+        </div>
+      )}
       <Link href={backHref} className="cd__back">
         ← {backLabel}
       </Link>
