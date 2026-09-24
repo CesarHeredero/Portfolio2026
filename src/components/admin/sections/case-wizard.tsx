@@ -141,7 +141,12 @@ export function CaseWizard({ onBack, onCreated }: { onBack: () => void; onCreate
 
   // Step 3 data
   const [review, setReview] = useState<ReviewState | null>(null);
-  const [reviewTab, setReviewTab] = useState<'content' | 'kpis' | 'meta'>('content');
+  const [reviewTab, setReviewTab] = useState<'content' | 'kpis' | 'meta' | 'analysis'>('content');
+
+  // Step 3 — Analysis (generated in background after case generation)
+  const [analysisEs, setAnalysisEs] = useState('');
+  const [analysisEn, setAnalysisEn] = useState('');
+  const [generatingAnalysis, setGeneratingAnalysis] = useState(false);
 
   // ── Step 1 → analyze ────────────────────────────────────────────────────────
   async function handleAnalyze() {
@@ -209,11 +214,46 @@ export function CaseWizard({ onBack, onCreated }: { onBack: () => void; onCreate
       }
 
       const year = initial.date.match(/\d{4}/)?.[0] ?? new Date().getFullYear().toString();
-      setReview(seedReview(data.generated, year));
+      const reviewState = seedReview(data.generated, year);
+      setReview(reviewState);
       setStep('review');
+
+      // Generate long-form analysis in background
+      void triggerGenerateAnalysis(reviewState, data.generated);
     } catch {
       setError('Sin conexión. Comprueba la red.');
       setStep('input');
+    }
+  }
+
+  async function triggerGenerateAnalysis(r: ReviewState, g: GeneratedCase) {
+    setGeneratingAnalysis(true);
+    setAnalysisEs('');
+    setAnalysisEn('');
+    try {
+      const caseData = {
+        titleEs: r.titleEs, titleEn: r.titleEn,
+        teaserEs: r.teaserEs, teaserEn: r.teaserEn,
+        categoryEs: r.categoryEs, categoryEn: r.categoryEn,
+        year: r.year, tags: g.tags, impactType: r.impactType,
+        piaProblem: r.problemEs, piaAction: r.actionEs, piaImpact: r.impactEs,
+        piaProblemEn: r.problemEn, piaActionEn: r.actionEn, piaImpactEn: r.impactEn,
+        kpis: r.kpis,
+      };
+      const res = await fetch('/api/admin/ai/generate-case', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phase: 'generateAnalysis', caseData, originalDescription: initial.description }),
+      });
+      const data = (await res.json()) as { analysis?: { es: string; en: string }; error?: string };
+      if (res.ok && data.analysis) {
+        setAnalysisEs(data.analysis.es);
+        setAnalysisEn(data.analysis.en);
+      }
+    } catch {
+      // Analysis is optional — don't block saving
+    } finally {
+      setGeneratingAnalysis(false);
     }
   }
 
@@ -259,7 +299,16 @@ export function CaseWizard({ onBack, onCreated }: { onBack: () => void; onCreate
       });
       if (res.ok) {
         const created = (await res.json()) as { id: string };
-        onCreated(created.id ?? slug);
+        const savedSlug = created.id ?? slug;
+        // Save MDX analysis if available
+        if (analysisEs || analysisEn) {
+          await fetch('/api/admin/cases/content', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: savedSlug, es: analysisEs, en: analysisEn }),
+          });
+        }
+        onCreated(savedSlug);
       } else {
         const body = await res.json() as { error?: string };
         setError(body.error ?? `Error ${res.status}`);
@@ -437,9 +486,9 @@ export function CaseWizard({ onBack, onCreated }: { onBack: () => void; onCreate
           </div>
 
           <div className="adm__tabs">
-            {(['content', 'kpis', 'meta'] as const).map((tk) => (
+            {(['content', 'kpis', 'meta', 'analysis'] as const).map((tk) => (
               <button key={tk} className={`adm__tab ${reviewTab === tk ? 'on' : ''}`} onClick={() => setReviewTab(tk)}>
-                {tk === 'content' ? 'Contenido' : tk === 'kpis' ? 'KPIs' : 'Metadata'}
+                {tk === 'content' ? 'Contenido' : tk === 'kpis' ? 'KPIs' : tk === 'meta' ? 'Metadata' : generatingAnalysis ? 'Análisis ⏳' : 'Análisis'}
               </button>
             ))}
           </div>
@@ -526,6 +575,46 @@ export function CaseWizard({ onBack, onCreated }: { onBack: () => void; onCreate
                     <Field label="TAGS (separados por coma)">
                       <input value={review.tags} onChange={(e) => updateReview('tags', e.target.value)} />
                     </Field>
+                  </>
+                )}
+
+                {reviewTab === 'analysis' && (
+                  <>
+                    {generatingAnalysis ? (
+                      <div style={{ padding: '32px 0', textAlign: 'center' }}>
+                        <div style={{
+                          width: 32, height: 32, borderRadius: '50%', margin: '0 auto 12px',
+                          border: '3px solid var(--line)', borderTopColor: 'var(--accent)',
+                          animation: 'spin 0.8s linear infinite',
+                        }} />
+                        <p style={{ fontSize: 12, color: 'var(--ink-500)', fontFamily: 'var(--font-mono)' }}>
+                          Generando el análisis largo… (puede tardar 20 s)
+                        </p>
+                        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                      </div>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: 12, color: 'var(--ink-500)', marginBottom: 8 }}>
+                          Análisis largo en Markdown (MDX). Se guarda como archivo en <code>content/cases/</code> y aparece en la página de detalle del caso.
+                        </p>
+                        <Field label="ANÁLISIS · ES">
+                          <textarea
+                            value={analysisEs}
+                            onChange={(e) => setAnalysisEs(e.target.value)}
+                            style={{ minHeight: 320, fontFamily: 'var(--font-mono)', fontSize: 12 }}
+                            placeholder="El análisis se genera automáticamente. Puedes editarlo aquí antes de guardar."
+                          />
+                        </Field>
+                        <Field label="ANÁLISIS · EN">
+                          <textarea
+                            value={analysisEn}
+                            onChange={(e) => setAnalysisEn(e.target.value)}
+                            style={{ minHeight: 320, fontFamily: 'var(--font-mono)', fontSize: 12 }}
+                            placeholder="Analysis generated automatically. You can edit it here before saving."
+                          />
+                        </Field>
+                      </>
+                    )}
                   </>
                 )}
 

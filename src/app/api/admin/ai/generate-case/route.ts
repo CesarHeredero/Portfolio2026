@@ -39,7 +39,8 @@ type CaseEditData = {
 };
 
 type EditBody = { phase: 'edit'; currentCase: CaseEditData; instruction: string };
-type RequestBody = AnalyzeBody | GenerateBody | EditBody;
+type GenerateAnalysisBody = { phase: 'generateAnalysis'; caseData: CaseEditData; originalDescription: string };
+type RequestBody = AnalyzeBody | GenerateBody | EditBody | GenerateAnalysisBody;
 
 export async function POST(request: Request) {
   if (!(await isAuthed())) {
@@ -69,6 +70,9 @@ export async function POST(request: Request) {
   }
   if (body.phase === 'edit') {
     return editCase(client, body.currentCase, body.instruction);
+  }
+  if (body.phase === 'generateAnalysis') {
+    return generateAnalysis(client, body.caseData, body.originalDescription);
   }
 
   return NextResponse.json({ error: 'Fase desconocida' }, { status: 400 });
@@ -207,6 +211,57 @@ REGLAS IMPORTANTES:
   } catch (err) {
     console.error('generate error:', err);
     return NextResponse.json({ error: 'Error al generar el caso. Inténtalo de nuevo.' }, { status: 500 });
+  }
+}
+
+// ── Phase 3b: Generate MDX analysis (long-form, ES + EN) ─────────────────────
+
+async function generateAnalysis(client: Anthropic, c: CaseEditData, originalDescription: string) {
+  const prompt = `Eres el redactor del portfolio de César Heredero (Senior Product Owner & UX Strategist). Escribe el análisis largo en formato Markdown (MDX) de este caso de portfolio, EN DOS IDIOMAS.
+
+DATOS DEL CASO:
+- Título ES: ${c.titleEs}
+- Título EN: ${c.titleEn}
+- Problema ES: ${c.piaProblem}
+- Acción ES: ${c.piaAction}
+- Impacto ES: ${c.piaImpact}
+- Tags: ${c.tags.join(', ')}
+- KPIs: ${c.kpis.map((k) => `${k.value} (${k.labelEs})`).join(' · ')}
+
+DESCRIPCIÓN ORIGINAL DE CÉSAR:
+${originalDescription}
+
+ESTRUCTURA DEL ANÁLISIS (para ES y EN):
+1. ## Por qué (contexto y problema de negocio)
+2. ## Qué hice (decisiones, proceso, lo que se construyó)
+3. ## Stack / herramientas (si es técnico, si no, omitir)
+4. ## Resultado (impacto medible + aprendizaje clave)
+
+REGLAS:
+- 400-600 palabras por idioma. Párrafos cortos. Sin relleno.
+- Tono: directo, primera persona, orientado a negocio.
+- Incluir los números del impacto donde los haya.
+- No repetir el teaser. El análisis profundiza.
+- NO incluir frontmatter ni títulos del caso, solo el cuerpo del análisis.
+
+Responde ÚNICAMENTE con este JSON (sin markdown wrapper):
+{
+  "es": "... texto en markdown ES ...",
+  "en": "... markdown text EN ..."
+}`;
+
+  try {
+    const msg = await client.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 3000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '{}';
+    const result = JSON.parse(raw) as { es: string; en: string };
+    return NextResponse.json({ analysis: result });
+  } catch (err) {
+    console.error('generateAnalysis error:', err);
+    return NextResponse.json({ error: 'Error al generar el análisis' }, { status: 500 });
   }
 }
 

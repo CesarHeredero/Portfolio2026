@@ -237,6 +237,48 @@
     }
   },
   {
+    "id": "listo-compras",
+    "slug": "listo-compras",
+    "category": { "es": "PRODUCTO & APP MÓVIL", "en": "PRODUCT & MOBILE APP" },
+    "year": "2026",
+    "title": {
+      "es": "Listo: app de listas de la compra compartidas, de cero a tienda en 3 meses",
+      "en": "Listo: shared shopping list app, from zero to store in 3 months"
+    },
+    "teaser": {
+      "es": "El problema de siempre: depender del móvil de la otra persona para ver qué falta. Diseñé y desarrollé Listo — React Native + Firebase, local-first, iconos automáticos por diccionario emoji y compartición en un toque. Publicada en App Store y Google Play.",
+      "en": "The classic problem: depending on the other person's phone to know what's missing. I designed and built Listo — React Native + Firebase, local-first, automatic emoji icon dictionary, one-tap sharing. Published on App Store and Google Play."
+    },
+    "kpis": [
+      { "value": "2", "label": { "es": "Tiendas publicadas (iOS + Android)", "en": "Stores published (iOS + Android)" } },
+      { "value": "0€", "label": { "es": "Cuenta obligatoria", "en": "Mandatory account" } },
+      { "value": "115€", "label": { "es": "Coste total de lanzamiento", "en": "Total launch cost" } }
+    ],
+    "tags": ["React Native", "Expo", "Firebase", "AdMob", "iOS", "Android", "EAS", "local-first"],
+    "impactType": "product",
+    "featured": false,
+    "status": "draft",
+    "coverImage": "/cases/listo-compras/cover.png",
+    "images": [
+      "/cases/listo-compras/img-1.png",
+      "/cases/listo-compras/img-2.png",
+      "/cases/listo-compras/img-3.png",
+      "/cases/listo-compras/img-4.png"
+    ],
+    "pia": {
+      "es": {
+        "problem": "Las apps de listas de la compra exigen cuenta, van lentas o no comparten en tiempo real sin fricción.",
+        "action": "Desarrollé Listo: local-first, iconos automáticos con diccionario emoji, compartición por enlace sin cuenta y monetización con AdMob + pago único para quitar anuncios.",
+        "impact": "App publicada en App Store y Google Play con un coste total de lanzamiento de 115€."
+      },
+      "en": {
+        "problem": "Shopping list apps require accounts, are slow or don't share in real time without friction.",
+        "action": "Built Listo: local-first, automatic emoji icon dictionary, frictionless link sharing without accounts, AdMob + one-time payment to remove ads.",
+        "impact": "App published on App Store and Google Play with a total launch cost of €115."
+      }
+    }
+  },
+  {
     "id": "bitacora-trip",
     "slug": "bitacora-trip",
     "category": { "es": "PRODUCTO & APP", "en": "PRODUCT & APP" },
