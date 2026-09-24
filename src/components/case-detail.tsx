@@ -71,6 +71,21 @@ export function CaseDetail({
         ))}
       </div>
 
+      {case_.links && case_.links.length > 0 && (
+        <div className="cd__links">
+          {case_.links.map((link, i) => (
+            <a key={i} href={link.url} className="cd__link" target="_blank" rel="noopener noreferrer">
+              {link.platform === 'ios' && '🍎 '}
+              {link.platform === 'android' && '🤖 '}
+              {link.platform === 'github' && '⌨️ '}
+              {link.platform === 'web' && '🌐 '}
+              {(!link.platform || link.platform === 'other') && '🔗 '}
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
+
       <div className="cd__body">
         <div>
           {pia && (

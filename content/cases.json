@@ -281,22 +281,23 @@
   {
     "id": "bitacora-trip",
     "slug": "bitacora-trip",
-    "category": { "es": "PRODUCTO & APP", "en": "PRODUCT & APP" },
+    "category": { "es": "PRODUCTO & APP MÓVIL", "en": "PRODUCT & MOBILE APP" },
     "year": "2026",
     "title": {
-      "es": "Bitácora: app de planificación de rutas en camper construida desde cero",
-      "en": "Bitácora: camper route planning app built from scratch"
+      "es": "Bitácora Trip: de itinerario de papel a app con IA en 12 meses, en solitario",
+      "en": "Bitácora Trip: from paper itinerary to AI-powered app in 12 months, solo"
     },
     "teaser": {
-      "es": "Ninguna app cubría lo que necesitaba para planificar 15 días en camper por 7 países. Diseñé y desarrollé Bitácora: itinerario día a día, gestión de fotos y resúmenes con IA. Primer viaje real: SUPERVIAJAZO 2026.",
-      "en": "No app covered what I needed to plan 15 days in a camper across 7 countries. I designed and built Bitácora: day-by-day itinerary, photo management and AI summaries. First real trip: SUPERVIAJAZO 2026."
+      "es": "Planificar 15 días en camper por Eslovenia exigía cruzar docenas de fuentes. Usé IA para montar el itinerario y vi el producto: una app que centraliza la planificación, genera rutas con IA y sirve de diario de viaje real. Llevo casi un año construyéndola solo.",
+      "en": "Planning 15 days in a camper across Slovenia meant crossing dozens of sources. I used AI to build the itinerary and saw the product: an app that centralises planning, generates routes with AI, and works as a real travel diary. I've been building it alone for nearly a year."
     },
     "kpis": [
-      { "value": "15", "label": { "es": "Días de ruta documentados", "en": "Route days documented" } },
-      { "value": "7", "label": { "es": "Países cubiertos", "en": "Countries covered" } },
-      { "value": "~5.200km", "label": { "es": "Kilómetros de ruta", "en": "Route kilometers" } }
+      { "value": "iOS", "label": { "es": "Publicada en App Store", "en": "Live on App Store" } },
+      { "value": "6", "label": { "es": "Idiomas (ES, EN, FR, DE, IT, ZH)", "en": "Languages (ES, EN, FR, DE, IT, ZH)" } },
+      { "value": "Solo dev", "label": { "es": "Diseñador + desarrollador único", "en": "Solo designer + developer" } },
+      { "value": "~1 año", "label": { "es": "De idea a tienda", "en": "From idea to store" } }
     ],
-    "tags": ["TypeScript", "PocketBase", "Self-hosted", "IA generativa", "App propia"],
+    "tags": ["TypeScript", "PocketBase", "Self-hosted", "IA generativa", "iOS", "Android", "App propia", "Solo dev"],
     "impactType": "product",
     "featured": false,
     "status": "draft",
@@ -306,16 +307,20 @@
       "/cases/bitacora-trip/img-2.jpg",
       "/cases/bitacora-trip/img-3.jpg"
     ],
+    "links": [
+      { "label": "Descargar en iOS (App Store)", "url": "https://apps.apple.com/app/apple-store/id6790492573", "platform": "ios" },
+      { "label": "Beta Android (Google Play)", "url": "https://play.google.com/store/apps/details?id=com.cesarheredero.bitacora", "platform": "android" }
+    ],
     "pia": {
       "es": {
-        "problem": "Las apps de viaje existentes no cubren la planificación detallada de rutas largas en camper con múltiples países.",
-        "action": "Desarrollé Bitácora desde cero con TypeScript + PocketBase: itinerario día a día, fotos, info por país e integración con IA.",
-        "impact": "Primer viaje real planificado y documentado: 15 días, 7 países, ~5.200km en camper."
+        "problem": "Planificar un viaje en camper implica cruzar docenas de fuentes para rutas, distancias, paradas y qué ver. Cuando el plan cambia sobre la marcha, hay que empezar desde cero.",
+        "action": "Desarrollé Bitácora Trip en solitario: IA generativa para crear el itinerario completo (destino + días → ruta con etapas), chat de replanificación en tiempo real y diario de viaje con fotos.",
+        "impact": "App publicada en App Store en iOS, en pruebas cerradas en Android, con 6 idiomas y sin ningún servicio de pago externo."
       },
       "en": {
-        "problem": "Existing travel apps don't cover detailed planning for long multi-country camper routes.",
-        "action": "Built Bitácora from scratch with TypeScript + PocketBase: day-by-day itinerary, photos, per-country info and AI integration.",
-        "impact": "First real trip planned and documented: 15 days, 7 countries, ~5,200km in a camper."
+        "problem": "Planning a camper trip means crossing dozens of sources for routes, distances, stops and sights. When plans change on the road, you start from scratch.",
+        "action": "Built Bitácora Trip solo: generative AI to create the full itinerary (destination + days → staged route), real-time replanning chat and a photo travel diary.",
+        "impact": "App live on App Store (iOS), in closed testing on Android, with 6 languages and no paid external services."
       }
     }
   },

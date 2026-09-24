@@ -1,40 +1,32 @@
-## Por qué construí esta app
+## El origen
 
-Planificar un viaje de 13 días en camper por 7 países europeos implica coordinar cientos de variables: dónde dormir cada noche, qué autopistas llevan viñeta obligatoria, si el país acepta mascotas en áreas de servicio, cuántos kilómetros puedes hacer en un día sin agotarte.
+Todo empezó organizando 15 días en camper por Eslovenia. El lago Bled y sus alrededores son conocidos, pero más allá de eso la información estaba dispersa en decenas de páginas distintas: blogs de viaje, Google Maps, foros de autocaravanistas, apps de campings, previsiones meteorológicas por zona. Acabé usando IA para ayudarme a montar el itinerario y en ese momento vi el producto: esto debería existir como app.
 
-Las apps existentes resuelven partes del problema —Google Maps para rutas, Park4Night para campings, Instagram para inspiración— pero ninguna lo integra en un solo lugar orientado al viaje largo en camper. Decidí construir lo que necesitaba.
+El problema no era solo la planificación inicial. Era también lo que pasa cuando el plan cambia sobre la marcha — cierra un paso de montaña, llueve tres días seguidos, la familia está cansada. Sin una herramienta que centralice todo, reorganizar implica volver a investigar desde cero.
 
-## Qué hace Bitácora
+## Qué se construyó
 
-### Itinerario día a día
+Bitácora Trip tiene tres núcleos funcionales:
 
-El corazón de la app. Cada etapa tiene: punto de partida, destino, kilómetros estimados, lugar de pernocta, actividades planificadas y notas libres. Ver el viaje completo de un vistazo —15 etapas, 8 países— permite detectar días demasiado cargados o tramos sin plan.
+**Generación de itinerario con IA.** El usuario indica destino y número de días; la app devuelve una ruta completa con etapas, kilómetros estimados, paradas recomendadas y qué ver en cada zona. No es un chatbot aparte: la IA está integrada directamente en el flujo de planificación.
 
-**SUPERVIAJAZO 2026** fue el primer viaje planificado con la app: Algete → Zuera → Carcasona → Lago de Orta → Lago de Garda → Liubliana → Lago Bled → Valle del Soča → Hallstatt → Königssee → Liechtenstein → Lindau → Annecy → Algete.
+**Chat de replanificación en tiempo real.** Dentro del propio viaje, el usuario puede reorganizar etapas, preguntar sobre la zona o ajustar el plan si algo cambia. La IA tiene contexto del itinerario activo, no responde en vacío.
 
-### Gestión de fotos
+**Diario de viaje.** Cada día del viaje se puede registrar con fotos, notas y estado. El resultado es un cuaderno de bitácora real que queda guardado para siempre, no solo una lista de tareas pendientes.
 
-Las fotos se suben desde el móvil durante el viaje y se asocian automáticamente al día de la etapa. El resultado es un álbum cronológico organizado por ruta, no por fecha de carga.
-
-### Información por país
-
-Para cada país del itinerario, la app almacena información práctica: normativa de campistop, requisitos de entrada con mascotas, viñetas de autopista (Austria, Suiza, Eslovenia…), bono de datos móviles. Datos que de otro modo estarían dispersos en 10 pestañas del navegador.
-
-### Resúmenes con IA
-
-Integración con modelos de lenguaje para generar resúmenes narrativos de cada día: útiles para escribir el post del viaje o como ayuda memoria semanas después.
+Además: ficha de vehículo (se configura una vez y acompaña a todos los viajes), 6 idiomas (español, inglés, francés, alemán, italiano y chino) y diseño pensado para usarse con una mano mientras el copiloto conduce.
 
 ## Stack técnico
 
-- **Frontend**: TypeScript
-- **Backend**: PocketBase (self-hosted en VPS, 0 €/mes)
-- **IA**: Modelos de lenguaje para resúmenes automáticos
-- **Hosting**: VPS propio junto con el resto de servicios
+- **Frontend**: TypeScript + framework propio, sin dependencias de UI innecesarias
+- **Backend**: PocketBase self-hosted — base de datos, auth y almacenamiento de fotos en un solo binario
+- **IA**: modelo de lenguaje para generación de itinerarios y chat de replanificación
+- **CI/CD**: despliegue propio sin servicios de pago
 
-La decisión de usar PocketBase en lugar de un backend custom fue deliberada: es un binario único, tiene autenticación lista, API REST y sistema de archivos para las fotos. Tiempo de setup: menos de una hora.
+La decisión de usar PocketBase en lugar de Firebase o Supabase fue deliberada: control total, coste cero y sin vendor lock-in. El servidor corre en la misma infraestructura que el resto de proyectos.
 
-## Lo que aprendí construyendo para ti mismo
+## Resultado y aprendizaje
 
-El primer prototipo tenía más funciones de las que usaba. Después de planificar el SUPERVIAJAZO con la app en la mano, quedó claro qué importaba de verdad y qué era ruido.
+La app está publicada en App Store (iOS) y en pruebas cerradas en Google Play (Android). El primer viaje real usando Bitácora como herramienta de planificación y diario fue SUPERVIAJAZO 2026 — 15 días, 7 países, ~5.200 km en camper.
 
-Construir para un usuario real —yo mismo— tiene una ventaja: el feedback es inmediato y sin filtros.
+Lo que más enseña de construir una app de consumo en solitario no es el código: es aprender a gestionar el ciclo completo — diseño, desarrollo, distribución, reseñas, actualizaciones — sin equipo. Cada función que existe en la app pasó por un filtro real: ¿lo necesitamos nosotros en el viaje? Si no, no entra.

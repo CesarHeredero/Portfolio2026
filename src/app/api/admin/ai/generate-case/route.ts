@@ -9,26 +9,11 @@ async function isAuthed(): Promise<boolean> {
   return cookieStore.get('ch_admin')?.value === 'authenticated';
 }
 
-type InitialData = {
-  title: string;
-  company: string;
-  role: string;
-  date: string;
-  description: string;
-  tags?: string;
-};
+// ── Shared types ──────────────────────────────────────────────────────────────
 
-type Question = {
-  id: string;
-  question: string;
-  why: string;
-  placeholder: string;
-};
+type CaseLink = { label: string; url: string; platform?: string };
 
-type AnalyzeBody = { phase: 'analyze'; initialData: InitialData };
-type GenerateBody = { phase: 'generate'; initialData: InitialData; answers?: Record<string, string> };
-
-type CaseEditData = {
+type FullCaseData = {
   titleEs: string; titleEn: string;
   teaserEs: string; teaserEn: string;
   categoryEs: string; categoryEn: string;
@@ -36,11 +21,14 @@ type CaseEditData = {
   piaProblem: string; piaAction: string; piaImpact: string;
   piaProblemEn: string; piaActionEn: string; piaImpactEn: string;
   kpis: { value: string; labelEs: string; labelEn: string }[];
+  links: CaseLink[];
+  analysisEs: string;
+  analysisEn: string;
 };
 
-type EditBody = { phase: 'edit'; currentCase: CaseEditData; instruction: string };
-type GenerateAnalysisBody = { phase: 'generateAnalysis'; caseData: CaseEditData; originalDescription: string };
-type RequestBody = AnalyzeBody | GenerateBody | EditBody | GenerateAnalysisBody;
+type GenerateFromBriefBody = { phase: 'generateFromBrief'; brief: string };
+type RefineBody = { phase: 'refine'; currentCase: FullCaseData; message: string };
+type RequestBody = GenerateFromBriefBody | RefineBody;
 
 export async function POST(request: Request) {
   if (!(await isAuthed())) {
@@ -49,7 +37,7 @@ export async function POST(request: Request) {
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({
-      error: 'ANTHROPIC_API_KEY no configurada. Añade la clave al archivo .env del VPS y reinicia el servidor.',
+      error: 'ANTHROPIC_API_KEY no configurada. Añade la clave al .env del VPS.',
     }, { status: 500 });
   }
 
@@ -62,239 +50,105 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
   }
 
-  if (body.phase === 'analyze') {
-    return analyze(client, body.initialData);
+  if (body.phase === 'generateFromBrief') {
+    return generateFromBrief(client, body.brief);
   }
-  if (body.phase === 'generate') {
-    return generate(client, body.initialData, body.answers);
-  }
-  if (body.phase === 'edit') {
-    return editCase(client, body.currentCase, body.instruction);
-  }
-  if (body.phase === 'generateAnalysis') {
-    return generateAnalysis(client, body.caseData, body.originalDescription);
+  if (body.phase === 'refine') {
+    return refine(client, body.currentCase, body.message);
   }
 
   return NextResponse.json({ error: 'Fase desconocida' }, { status: 400 });
 }
 
-// ── Phase 1: Analyze if we need more info ──────────────────────────────────
+// ── Generate everything from a free-form brief ────────────────────────────────
 
-async function analyze(client: Anthropic, data: InitialData) {
-  const prompt = `Analiza esta información de un caso de portfolio de Product Owner/UX y determina si tienes suficiente información para escribir un caso profesional, o si necesitas más datos.
+async function generateFromBrief(client: Anthropic, brief: string) {
+  const prompt = `Eres el redactor del portfolio de César Heredero (Senior Product Owner & UX Strategist, Lead UX/UI en Grupo Flexicar). Tu tarea es generar un caso de portfolio completo a partir de un briefing libre.
 
-Información del proyecto:
-- Título: ${data.title}
-- Empresa/Cliente: ${data.company}
-- Rol en el proyecto: ${data.role}
-- Período: ${data.date}
-- Descripción del usuario: ${data.description}
-${data.tags ? `- Tags sugeridos: ${data.tags}` : ''}
+BRIEFING DEL PROYECTO:
+${brief}
 
-Para un caso de portfolio de calidad se necesita:
-1. Un problema de negocio concreto y cuantificable
-2. Las decisiones y acciones específicas tomadas
-3. Resultados medibles con números (%, tiempo, dinero, usuarios, conversiones...)
+Genera el caso completo en este JSON. Adapta los campos AL TIPO DE PROYECTO — no uses siempre los mismos KPIs ni la misma estructura:
 
-Evalúa si la descripción incluye estos tres elementos con suficiente detalle. Si falta alguno, haz preguntas concretas para obtenerlo.
-
-Responde ÚNICAMENTE con este JSON (sin markdown, sin explicaciones):
 {
-  "hasEnoughInfo": true,
-  "questions": []
-}
-
-O si necesitas más datos:
-{
-  "hasEnoughInfo": false,
-  "questions": [
-    {
-      "id": "q1",
-      "question": "¿Cuál era el problema de negocio concreto antes de este proyecto?",
-      "why": "Necesito entender el punto de partida para definir el impacto",
-      "placeholder": "Por ejemplo: el 30% de usuarios abandonaban el formulario de contacto"
-    }
-  ]
-}
-
-Máximo 4 preguntas. Sé específico y directo.`;
-
-  try {
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '{}';
-    const result = JSON.parse(raw) as { hasEnoughInfo: boolean; questions: Question[] };
-    return NextResponse.json(result);
-  } catch (err) {
-    console.error('analyze error:', err);
-    return NextResponse.json({ error: 'Error al analizar la información' }, { status: 500 });
-  }
-}
-
-// ── Phase 2: Generate the full case ───────────────────────────────────────
-
-async function generate(client: Anthropic, data: InitialData, answers?: Record<string, string>) {
-  const answersText = answers && Object.keys(answers).length > 0
-    ? '\n\nRespuestas adicionales del autor:\n' + Object.entries(answers).map(([, v]) => `- ${v}`).join('\n')
-    : '';
-
-  const prompt = `Eres el redactor del portfolio de César Heredero, Senior Product Owner & UX Strategist en Flexicar (ecommerce de automoción con +30.000 fichas en España y Portugal). Tu tarea es escribir un caso de estudio profesional basado en la información que César te da.
-
-ESTILO DEL PORTFOLIO:
-- Conciso y orientado a negocio. Sin relleno.
-- Cada caso tiene un problema de negocio real → acción concreta → impacto medible con números.
-- Tono: directo, profesional, sin jerga corporativa vacía.
-- Los títulos describen el resultado o el reto, no el nombre del proyecto.
-
-INFORMACIÓN DEL CASO:
-- Título/Nombre: ${data.title}
-- Empresa: ${data.company}
-- Rol de César: ${data.role}
-- Período: ${data.date}
-- Descripción: ${data.description}
-${data.tags ? `- Tags mencionados: ${data.tags}` : ''}${answersText}
-
-GENERA el caso completo en este JSON exacto (sin markdown, sin texto fuera del JSON):
-{
-  "title": {
-    "es": "Título en español, orientado al problema o resultado (máx 80 chars)",
-    "en": "Title in English, problem or result oriented (max 80 chars)"
-  },
-  "teaser": {
-    "es": "2-3 frases que resumen el caso: contexto → acción → resultado.",
-    "en": "2-3 sentences: context → action → result."
-  },
-  "category": {
-    "es": "UNA de: PRODUCTO, SEO, DATOS, UX, RENDIMIENTO, CONTENIDO",
-    "en": "ONE of: PRODUCT, SEO, DATA, UX, PERFORMANCE, CONTENT"
-  },
-  "impactType": "uno de: product, seo, data, ux, performance, content",
+  "titleEs": "Título en español orientado al reto o resultado (máx 80 chars)",
+  "titleEn": "Title in English, challenge or result oriented (max 80 chars)",
+  "teaserEs": "2-3 frases que resumen el caso: contexto → qué se construyó → resultado clave.",
+  "teaserEn": "2-3 sentences: context → what was built → key result.",
+  "categoryEs": "Una de: PRODUCTO & APP MÓVIL, PRODUCTO & CONTENIDO, SEO, DATOS, UX, RENDIMIENTO",
+  "categoryEn": "One of: PRODUCT & MOBILE APP, PRODUCT & CONTENT, SEO, DATA, UX, PERFORMANCE",
+  "year": "Año extraído del briefing o año actual",
   "tags": ["Tag1", "Tag2", "Tag3"],
+  "impactType": "product|seo|data|ux|performance|content",
   "kpis": [
-    {"value": "X%", "label": {"es": "Métrica en español", "en": "Metric in English"}},
-    {"value": "Nº", "label": {"es": "Otra métrica", "en": "Another metric"}}
+    { "value": "X", "labelEs": "Etiqueta adaptada al proyecto", "labelEn": "Adapted label" }
   ],
-  "pia": {
-    "es": {
-      "problem": "El problema de negocio en 1-2 frases concretas.",
-      "action": "Lo que se hizo en 1-2 frases concretas.",
-      "impact": "El impacto medible con números en 1-2 frases."
-    },
-    "en": {
-      "problem": "The business problem in 1-2 concrete sentences.",
-      "action": "What was done in 1-2 concrete sentences.",
-      "impact": "The measurable impact with numbers in 1-2 sentences."
-    }
-  }
+  "piaProblem": "El problema de negocio en 1-2 frases concretas (ES).",
+  "piaAction": "Lo que se hizo en 1-2 frases concretas (ES).",
+  "piaImpact": "El impacto medible en 1-2 frases (ES).",
+  "piaProblemEn": "Business problem in 1-2 concrete sentences (EN).",
+  "piaActionEn": "What was done in 1-2 concrete sentences (EN).",
+  "piaImpactEn": "Measurable impact in 1-2 sentences (EN).",
+  "links": [],
+  "analysisEs": "Análisis largo en Markdown (400-600 palabras, ES). Ver estructura abajo.",
+  "analysisEn": "Long-form analysis in Markdown (400-600 words, EN). See structure below."
 }
 
-REGLAS IMPORTANTES:
-- Los KPIs DEBEN tener valores concretos con números (porcentajes, tiempos, cantidades). Si no los tienes, infiere razonables desde la descripción y ponles un "*" al final del label.
-- La pia.impact DEBE mencionar al menos un número.
-- Incluye 3-6 tags técnicos o metodológicos relevantes.
-- Responde SOLO con el JSON válido.`;
+REGLAS DE KPIs — adáptalos al tipo de proyecto:
+- App de consumo: tiendas publicadas, idiomas, coste de lanzamiento, funciones clave
+- Proyecto de negocio: % mejora, tiempo ahorrado, ingresos, usuarios impactados
+- Proyecto técnico: tiempo de respuesta, reducción de deuda técnica, cobertura
+- Máximo 4 KPIs. Valores concretos con números. Si son estimaciones, añade asterisco.
+
+REGLAS DE LINKS — extráelos del briefing si los menciona:
+- Si hay URL de App Store → { "label": "Descargar en iOS", "url": "...", "platform": "ios" }
+- Si hay URL de Google Play → { "label": "Google Play", "url": "...", "platform": "android" }
+- Si hay web → { "label": "Ver proyecto", "url": "...", "platform": "web" }
+- Si no hay links en el briefing → array vacío []
+
+ESTRUCTURA DEL ANÁLISIS (ES y EN):
+## [Título sección: El origen / Why]
+Contexto y problema. Por qué nació este proyecto.
+
+## [Título sección: Qué se construyó / What was built]
+Funciones clave y decisiones de producto más importantes.
+
+## Stack técnico (SOLO si el proyecto es técnico y el stack es relevante)
+
+## [Título sección: Resultado / Results]
+Impacto medible + aprendizaje principal.
+
+Responde ÚNICAMENTE con el JSON válido (sin markdown wrapper, sin texto adicional).`;
 
   try {
     const msg = await client.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 2048,
+      max_tokens: 6000,
       messages: [{ role: 'user', content: prompt }],
     });
-
     const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '{}';
-    const generated = JSON.parse(raw);
+    const generated = JSON.parse(raw) as FullCaseData;
     return NextResponse.json({ generated });
   } catch (err) {
-    console.error('generate error:', err);
+    console.error('generateFromBrief error:', err);
     return NextResponse.json({ error: 'Error al generar el caso. Inténtalo de nuevo.' }, { status: 500 });
   }
 }
 
-// ── Phase 3b: Generate MDX analysis (long-form, ES + EN) ─────────────────────
+// ── Refine via chat ───────────────────────────────────────────────────────────
 
-async function generateAnalysis(client: Anthropic, c: CaseEditData, originalDescription: string) {
-  const prompt = `Eres el redactor del portfolio de César Heredero (Senior Product Owner & UX Strategist). Escribe el análisis largo en formato Markdown (MDX) de este caso de portfolio, EN DOS IDIOMAS.
-
-DATOS DEL CASO:
-- Título ES: ${c.titleEs}
-- Título EN: ${c.titleEn}
-- Problema ES: ${c.piaProblem}
-- Acción ES: ${c.piaAction}
-- Impacto ES: ${c.piaImpact}
-- Tags: ${c.tags.join(', ')}
-- KPIs: ${c.kpis.map((k) => `${k.value} (${k.labelEs})`).join(' · ')}
-
-DESCRIPCIÓN ORIGINAL DE CÉSAR:
-${originalDescription}
-
-ESTRUCTURA DEL ANÁLISIS (para ES y EN):
-1. ## Por qué (contexto y problema de negocio)
-2. ## Qué hice (decisiones, proceso, lo que se construyó)
-3. ## Stack / herramientas (si es técnico, si no, omitir)
-4. ## Resultado (impacto medible + aprendizaje clave)
-
-REGLAS:
-- 400-600 palabras por idioma. Párrafos cortos. Sin relleno.
-- Tono: directo, primera persona, orientado a negocio.
-- Incluir los números del impacto donde los haya.
-- No repetir el teaser. El análisis profundiza.
-- NO incluir frontmatter ni títulos del caso, solo el cuerpo del análisis.
-
-Responde ÚNICAMENTE con este JSON (sin markdown wrapper):
-{
-  "es": "... texto en markdown ES ...",
-  "en": "... markdown text EN ..."
-}`;
-
-  try {
-    const msg = await client.messages.create({
-      model: 'claude-sonnet-5',
-      max_tokens: 3000,
-      messages: [{ role: 'user', content: prompt }],
-    });
-    const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '{}';
-    const result = JSON.parse(raw) as { es: string; en: string };
-    return NextResponse.json({ analysis: result });
-  } catch (err) {
-    console.error('generateAnalysis error:', err);
-    return NextResponse.json({ error: 'Error al generar el análisis' }, { status: 500 });
-  }
-}
-
-// ── Phase 3: Edit an existing case with a natural language instruction ────────
-
-async function editCase(client: Anthropic, current: CaseEditData, instruction: string) {
-  const kpisText = current.kpis.map((k) => `${k.value} / ${k.labelEs} / ${k.labelEn}`).join(' | ');
-
-  const prompt = `Eres el editor de casos del portfolio de César Heredero (Senior Product Owner & UX Strategist). Tienes el contenido actual de un caso y una instrucción del usuario. Aplica SOLO los cambios pedidos y devuelve el caso completo actualizado.
+async function refine(client: Anthropic, current: FullCaseData, message: string) {
+  const prompt = `Eres el editor del portfolio de César Heredero. Tienes el borrador actual de un caso y el usuario quiere cambiarlo.
 
 CASO ACTUAL:
-- Título ES: ${current.titleEs}
-- Título EN: ${current.titleEn}
-- Teaser ES: ${current.teaserEs}
-- Teaser EN: ${current.teaserEn}
-- Categoría ES: ${current.categoryEs}
-- Categoría EN: ${current.categoryEn}
-- Año: ${current.year}
-- Tags: ${current.tags.join(', ')}
-- Tipo de impacto: ${current.impactType}
-- Problema ES: ${current.piaProblem}
-- Acción ES: ${current.piaAction}
-- Impacto ES: ${current.piaImpact}
-- Problema EN: ${current.piaProblemEn}
-- Acción EN: ${current.piaActionEn}
-- Impacto EN: ${current.piaImpactEn}
-- KPIs (valor / etiqueta ES / etiqueta EN): ${kpisText || 'ninguno'}
+${JSON.stringify(current, null, 2)}
 
-INSTRUCCIÓN DEL USUARIO: "${instruction}"
+EL USUARIO DICE: "${message}"
 
-Aplica los cambios pedidos. Si el usuario dice "cambia X por Y", actualiza ese campo. Si dice "añade", agrega. Si dice "quita", elimina. Si pide un cambio en español, actualiza también la versión EN manteniendo coherencia. No cambies lo que no se ha pedido. Mantén máximo 4 KPIs.
+Aplica SOLO lo que pide. No cambies lo que no se menciona. Si pide cambiar el título, actualiza titleEs y titleEn manteniendo coherencia. Si pide añadir un enlace, añádelo a links[]. Si pide modificar el análisis, actualiza la sección relevante de analysisEs y analysisEn. Si pide quitar los KPIs y poner otra cosa, reemplázalos. Adapta siempre ES y EN juntos para mantener coherencia.
 
-Responde ÚNICAMENTE con este JSON válido (sin markdown, sin texto adicional):
+Devuelve el caso completo actualizado MÁS un campo extra "reply" con una frase confirmando el cambio:
+
 {
   "titleEs": "...",
   "titleEn": "...",
@@ -304,28 +158,34 @@ Responde ÚNICAMENTE con este JSON válido (sin markdown, sin texto adicional):
   "categoryEn": "...",
   "year": "...",
   "tags": ["..."],
-  "impactType": "product|seo|data|ux|performance|content",
+  "impactType": "...",
+  "kpis": [{ "value": "...", "labelEs": "...", "labelEn": "..." }],
   "piaProblem": "...",
   "piaAction": "...",
   "piaImpact": "...",
   "piaProblemEn": "...",
   "piaActionEn": "...",
   "piaImpactEn": "...",
-  "kpis": [{"value": "...", "labelEs": "...", "labelEn": "..."}]
-}`;
+  "links": [{ "label": "...", "url": "...", "platform": "..." }],
+  "analysisEs": "...",
+  "analysisEn": "...",
+  "reply": "Listo, he [descripción breve del cambio]."
+}
+
+Responde ÚNICAMENTE con el JSON válido.`;
 
   try {
     const msg = await client.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 2048,
+      max_tokens: 6000,
       messages: [{ role: 'user', content: prompt }],
     });
-
     const raw = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '{}';
-    const updated = JSON.parse(raw) as CaseEditData;
-    return NextResponse.json({ updated });
+    const result = JSON.parse(raw) as FullCaseData & { reply: string };
+    const { reply, ...updated } = result;
+    return NextResponse.json({ updated, reply });
   } catch (err) {
-    console.error('edit error:', err);
-    return NextResponse.json({ error: 'Error al editar el caso. Inténtalo de nuevo.' }, { status: 500 });
+    console.error('refine error:', err);
+    return NextResponse.json({ error: 'Error al procesar el cambio. Inténtalo de nuevo.' }, { status: 500 });
   }
 }

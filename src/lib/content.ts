@@ -19,6 +19,12 @@ export type PIASummary = {
   impact: string;
 };
 
+export type CaseLink = {
+  label: string;
+  url: string;
+  platform?: 'ios' | 'android' | 'web' | 'github' | 'other';
+};
+
 export type Case = {
   id: string;
   slug: string;
@@ -35,6 +41,7 @@ export type Case = {
   coverImage?: string;
   images?: string[];
   analysisDoc?: string;
+  links?: CaseLink[];
 };
 
 export const CASES: Case[] = [
