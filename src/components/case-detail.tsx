@@ -86,6 +86,22 @@ export function CaseDetail({
         </div>
       )}
 
+      {case_.coverImage && (
+        <div className="cd__cover">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={case_.coverImage} alt={case_.title[locale]} className="cd__cover-img" />
+        </div>
+      )}
+
+      {case_.images && case_.images.length > 0 && (
+        <div className="cd__gallery">
+          {case_.images.map((src, i) => (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img key={i} src={src} alt={`${case_.title[locale]} — ${i + 1}`} className="cd__gallery-img" />
+          ))}
+        </div>
+      )}
+
       <div className="cd__body">
         <div>
           {pia && (

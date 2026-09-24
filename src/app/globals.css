@@ -3166,3 +3166,33 @@ h6 {
   max-height: 600px;
 }
 .wiz__preview-lang { margin-bottom: 8px; }
+
+/* ── Case detail: cover image + gallery ─────────────────────────────────── */
+.cd__cover {
+  margin-bottom: var(--s-8);
+  border-radius: var(--r-3);
+  overflow: hidden;
+}
+.cd__cover-img {
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+  display: block;
+}
+.cd__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--s-3);
+  margin-bottom: var(--s-8);
+}
+.cd__gallery-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: var(--r-2);
+  display: block;
+}
+@media (max-width: 640px) {
+  .cd__gallery { grid-template-columns: 1fr 1fr; }
+  .cd__cover-img { max-height: 240px; }
+}
