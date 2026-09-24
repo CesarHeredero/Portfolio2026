@@ -1,0 +1,58 @@
+## El problema que resuelve
+
+En casa, la lista de la compra funciona así: alguien la escribe en una nota del móvil, otra persona va al supermercado sin acceso a la nota y llama para preguntar qué faltaba. O peor: dos personas compran lo mismo porque cada una llevaba su propia lista.
+
+Las apps existentes de listas compartidas tienen dos problemas: o exigen crear una cuenta antes de poder usar nada (fricción desde el primer segundo), o no sincronizan bien en tiempo real (la otra persona ve la versión de hace 10 minutos).
+
+Listo nace para resolver esto de forma directa.
+
+## Qué hace la app
+
+### Local-first: funciona sin cuenta
+
+La app es usable desde el primer segundo, sin registro. Las listas viven en el dispositivo (base de datos local). Crear una lista es abrir la app y empezar a escribir. El login con Google se pide únicamente cuando quieres hacer backup en la nube o compartir una lista con alguien.
+
+Esta decisión elimina la fricción del onboarding y hace la app útil incluso sin conexión.
+
+### Iconos automáticos
+
+Cada ítem lleva un icono/emoji asignado automáticamente. Al escribir "leche", aparece 🥛. Al escribir "pan", aparece 🥖. El diccionario cubre categorías de supermercado: lácteos, panadería, fruta, verdura, limpieza, droguería, bebidas, carne, pescado, hogar, mascotas.
+
+La asignación es instantánea (diccionario local, cero coste, funciona offline). La IA es una opción futura para palabras desconocidas.
+
+### Compartir en un toque
+
+Botón → enlace → hoja nativa del sistema operativo. Quien recibe el enlace entra directamente a la lista compartida. Los avatares de los miembros son visibles en tiempo real. Firebase Firestore gestiona la sincronización con reglas de seguridad por miembro.
+
+### Interfaz diseñada para una mano
+
+- Campo de añadir fijo arriba, siempre con foco. Enter añade y mantiene el foco para seguir escribiendo.
+- Tap = marcar hecho (tachado + verde). Swipe = borrar. Arrastrar = reordenar.
+- Targets grandes, modo claro y modo oscuro.
+
+## Stack técnico
+
+- **Frontend**: React Native + Expo managed (TypeScript)
+- **Backend**: Firebase (Auth Google + Firestore con persistencia offline + Analytics)
+- **Publicidad**: AdMob (banner anclado abajo, no intrusivo)
+- **CI/CD**: EAS para credenciales y builds de desarrollo · Codemagic para builds de producción vía git push
+- **Sin Mac necesario**: EAS compila iOS en la nube
+
+**Coste total para lanzar:**
+- Apple Developer: 99 $/año
+- Google Play: 25 $ único
+- Expo EAS: 0 €
+- Firebase (plan Spark): 0 €
+- **Total ≈ 115 €**
+
+## Monetización
+
+AdMob banner anclado abajo en todas las pantallas. Frecuencia de interstitial baja para no molestar. Un único in-app purchase: "Quitar anuncios" a 2,99 € (pago único, sin suscripción). Al comprar, el banner desaparece permanentemente para ese usuario.
+
+La lógica es sencilla: una compra de 2,99 € (neto ~2,54 €) equivale a cientos de días de ese usuario viendo banners. El ingreso serio de una app de utilidad viene del "quita-ads", no del banner.
+
+## Lo más interesante del proceso
+
+Construir una app de consumo (no una herramienta interna) obliga a pensar en la distribución desde el día uno. El código es la parte fácil. Lo que requiere más trabajo es la cadena App Store Connect → provisioning profiles → EAS → Codemagic, donde cada paso tiene su burocracia.
+
+El CI/CD híbrido (EAS para credenciales + Codemagic para los builds de producción) resuelve el problema de no tener Mac: EAS gestiona los certificados de Apple automáticamente, Codemagic compila en macOS M2 en la nube cuando se hace push a main.

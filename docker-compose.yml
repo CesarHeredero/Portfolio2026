@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio2026_app
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./content:/app/content
+      - ./public/cases:/app/public/cases
+    networks:
+      - npm_network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/es', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  npm_network:
+    external: true
+    name: gestor-web_default

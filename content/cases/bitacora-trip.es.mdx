@@ -1,0 +1,32 @@
+## El origen
+
+Todo empezó organizando 15 días en camper por Eslovenia. El lago Bled y sus alrededores son conocidos, pero más allá de eso la información estaba dispersa en decenas de páginas distintas: blogs de viaje, Google Maps, foros de autocaravanistas, apps de campings, previsiones meteorológicas por zona. Acabé usando IA para ayudarme a montar el itinerario y en ese momento vi el producto: esto debería existir como app.
+
+El problema no era solo la planificación inicial. Era también lo que pasa cuando el plan cambia sobre la marcha — cierra un paso de montaña, llueve tres días seguidos, la familia está cansada. Sin una herramienta que centralice todo, reorganizar implica volver a investigar desde cero.
+
+## Qué se construyó
+
+Bitácora Trip tiene tres núcleos funcionales:
+
+**Generación de itinerario con IA.** El usuario indica destino y número de días; la app devuelve una ruta completa con etapas, kilómetros estimados, paradas recomendadas y qué ver en cada zona. No es un chatbot aparte: la IA está integrada directamente en el flujo de planificación.
+
+**Chat de replanificación en tiempo real.** Dentro del propio viaje, el usuario puede reorganizar etapas, preguntar sobre la zona o ajustar el plan si algo cambia. La IA tiene contexto del itinerario activo, no responde en vacío.
+
+**Diario de viaje.** Cada día del viaje se puede registrar con fotos, notas y estado. El resultado es un cuaderno de bitácora real que queda guardado para siempre, no solo una lista de tareas pendientes.
+
+Además: ficha de vehículo (se configura una vez y acompaña a todos los viajes), 6 idiomas (español, inglés, francés, alemán, italiano y chino) y diseño pensado para usarse con una mano mientras el copiloto conduce.
+
+## Stack técnico
+
+- **Frontend**: TypeScript + framework propio, sin dependencias de UI innecesarias
+- **Backend**: PocketBase self-hosted — base de datos, auth y almacenamiento de fotos en un solo binario
+- **IA**: modelo de lenguaje para generación de itinerarios y chat de replanificación
+- **CI/CD**: despliegue propio sin servicios de pago
+
+La decisión de usar PocketBase en lugar de Firebase o Supabase fue deliberada: control total, coste cero y sin vendor lock-in. El servidor corre en la misma infraestructura que el resto de proyectos.
+
+## Resultado y aprendizaje
+
+La app está publicada en App Store (iOS) y en pruebas cerradas en Google Play (Android). El primer viaje real usando Bitácora como herramienta de planificación y diario fue SUPERVIAJAZO 2026 — 15 días, 7 países, ~5.200 km en camper.
+
+Lo que más enseña de construir una app de consumo en solitario no es el código: es aprender a gestionar el ciclo completo — diseño, desarrollo, distribución, reseñas, actualizaciones — sin equipo. Cada función que existe en la app pasó por un filtro real: ¿lo necesitamos nosotros en el viaje? Si no, no entra.

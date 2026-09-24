@@ -1,0 +1,72 @@
+---
+slug: indexacion-30k
+title: Preparar +30.000 fichas de vehículos para que Google las indexe bien
+category: SEO TÉCNICO
+year: "2024"
+impactType: seo
+tags:
+  - Sitemaps
+  - Schema.org
+  - Canonical
+  - Enlazado interno
+kpis:
+  - value: "30K+"
+    label: URLs gestionadas
+  - value: "5"
+    label: Tipos de Schema
+---
+
+## Contexto
+
+Flexicar tiene más de 30.000 fichas activas de vehículos entre España y Portugal. El catálogo rota constantemente: coches que se venden se dan de baja, coches nuevos se añaden cada día. Google no encontraba todas las fichas ni las procesaba a la velocidad que se publicaban.
+
+Al mismo tiempo, el sistema de filtros (por marca, modelo, precio, carrocería, provincia) generaba miles de URLs de paginación sin valor SEO que competían con las fichas reales.
+
+## Problema
+
+- **Indexación incompleta**: parte del catálogo no aparecía en Google aunque llevara semanas publicado.
+- **Duplicado masivo**: los filtros generaban URLs tipo `/coches-segunda-mano?marca=toyota&precio=0-15000&pagina=3` sin canonical, duplicando el contenido de las fichas.
+- **Sitemaps desactualizados**: los sitemaps incluían URLs de fichas vendidas (404 o redirect) y no cubrían todas las páginas activas.
+- **Schema.org básico o ausente**: las fichas tenían markup mínimo, sin datos de precio, disponibilidad o ubicación de tienda.
+- **Presupuesto de crawl desperdiciado**: Google consumía el crawl budget en URLs sin valor.
+
+## Acción
+
+### Auditoría de indexación
+
+- Extracción del estado de indexación de todas las URLs via Search Console API.
+- Clasificación: indexada, descubierta no indexada, excluida, crawleada no indexada.
+- Análisis de las páginas con mayor potencial de tráfico no capturado.
+
+### Arquitectura de sitemaps
+
+- Diseño de sitemaps segmentados por tipo: fichas activas, páginas de categoría, páginas estáticas.
+- Sitemap index con sub-sitemaps de máximo 50.000 URLs cada uno.
+- Renovación automática: el sitemap de fichas activas se regenera cada 24h.
+- Exclusión de URLs de paginación y filtros del sitemap.
+
+### Reglas de canonical y robots
+
+- Regla canonical: todas las URLs de filtros apuntan al canonical de la categoría base.
+- `robots.txt` actualizado para bloquear parámetros de paginación al crawl de Google.
+- Noindex aplicado a páginas de paginación profunda (>página 3).
+
+### Schema.org para fichas de vehículo
+
+Implementación de 5 tipos de markup en cada ficha:
+1. `Vehicle` — marca, modelo, año, color, kilometraje, combustible.
+2. `Offer` — precio, moneda, disponibilidad, condición.
+3. `LocalBusiness` — tienda donde está disponible el vehículo.
+4. `BreadcrumbList` — navegación jerárquica.
+5. `FAQPage` — preguntas frecuentes del tipo de vehículo.
+
+## Impacto
+
+| Métrica | Situación inicial | Objetivo |
+|---|---|---|
+| URLs activas en sitemap | Parcial + vendidas | 30K+ activas, 0 vendidas |
+| Tipos de Schema | 1 (básico) | 5 (completo) |
+| URLs con canonical correcto | Variable | 100% |
+| Crawl budget en URLs sin valor | Alto | Mínimo |
+
+Las fichas de vehículos pasaron a ser indexables correctamente con datos estructurados completos. La paginación dejó de competir con las fichas reales en el índice de Google.

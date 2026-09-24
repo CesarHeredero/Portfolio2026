@@ -1,0 +1,58 @@
+## The problem it solves
+
+At home, the shopping list works like this: someone writes it in a notes app, another person goes to the supermarket without access to the note and calls to ask what was missing. Or worse: two people buy the same things because each had their own list.
+
+Existing shared list apps have two problems: either they require creating an account before you can use anything (friction from the very first second), or they don't sync well in real time (the other person sees the version from 10 minutes ago).
+
+Listo was built to solve this directly.
+
+## What the app does
+
+### Local-first: works without an account
+
+The app is usable from the first second, no registration required. Lists live on the device (local database). Creating a list means opening the app and starting to type. Google login is only asked when you want to back up to the cloud or share a list with someone.
+
+This decision eliminates onboarding friction and makes the app useful even offline.
+
+### Automatic icons
+
+Every item gets an automatically assigned icon/emoji. Type "milk" → 🥛. Type "bread" → 🥖. The dictionary covers supermarket categories: dairy, bakery, fruit, vegetables, cleaning, drugstore, drinks, meat, fish, home, pets.
+
+The assignment is instant (local dictionary, zero cost, works offline). AI is a future option for unknown words.
+
+### One-tap sharing
+
+Button → link → native OS share sheet. Whoever receives the link enters the shared list directly. Member avatars are visible in real time. Firebase Firestore handles synchronisation with per-member security rules.
+
+### Designed for one-hand use
+
+- Fixed add field at the top, always focused. Enter adds and keeps focus for continued typing.
+- Tap = mark done (strikethrough + green). Swipe = delete. Drag = reorder.
+- Large targets, light and dark mode.
+
+## Tech stack
+
+- **Frontend**: React Native + Expo managed (TypeScript)
+- **Backend**: Firebase (Google Auth + Firestore with offline persistence + Analytics)
+- **Ads**: AdMob (anchored banner at the bottom, non-intrusive)
+- **CI/CD**: EAS for credentials and dev builds · Codemagic for production builds via git push
+- **No Mac required**: EAS compiles iOS in the cloud
+
+**Total launch cost:**
+- Apple Developer: $99/year
+- Google Play: $25 one-time
+- Expo EAS: €0
+- Firebase (Spark plan): €0
+- **Total ≈ €115**
+
+## Monetisation
+
+AdMob banner anchored at the bottom across all screens. Low interstitial frequency to avoid being annoying. One in-app purchase: "Remove ads" at €2.99 (one-time, no subscription). After purchase, the banner disappears permanently for that user.
+
+The logic is simple: a €2.99 purchase (net ~€2.54) is equivalent to hundreds of days of that user seeing banners. The real revenue of a utility app comes from the "remove ads" purchase, not the banner itself.
+
+## The most interesting part of the process
+
+Building a consumer app (not an internal tool) forces you to think about distribution from day one. The code is the easy part. What requires more work is the App Store Connect → provisioning profiles → EAS → Codemagic chain, where each step has its own bureaucracy.
+
+The hybrid CI/CD (EAS for credentials + Codemagic for production builds) solves the no-Mac problem: EAS manages Apple certificates automatically, Codemagic compiles on cloud macOS M2 when you push to main.

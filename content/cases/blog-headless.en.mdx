@@ -1,0 +1,69 @@
+---
+slug: blog-headless
+title: Blog migration to a headless CMS inside the main domain
+category: PRODUCT & CONTENT
+year: "2025"
+impactType: content
+featured: true
+tags:
+  - Headless CMS
+  - Technical SEO
+  - Schema.org
+  - Accessibility
+  - 301
+kpis:
+  - value: "1.092"
+    label: URLs migrated
+  - value: "13"
+    label: Block types
+  - value: "100%"
+    label: Organic traffic preserved
+---
+
+## Context
+
+Flexicar's blog lived at `blog.flexicar.es`, a subdomain separate from the main domain `flexicar.es`. For Google, that was essentially a different website: 1,000+ articles accumulated over years contributed no authority to the root domain.
+
+The editorial team also relied on a legacy system with no support for rich blocks or accessibility optimizations.
+
+## Problem
+
+- **SEO authority dilution**: backlinks pointed to the subdomain, not the main domain.
+- **Potential duplicate content**: similar URLs across two domains without coherent canonicals.
+- **Editorial bottleneck**: without structured blocks, Marketing couldn't independently publish quality content (comparison tables, FAQs, CTAs, etc.).
+- **Accessibility debt**: the previous system did not apply WCAG 2.1 AA.
+
+## Action
+
+I designed and coordinated the full migration in three phases:
+
+### Phase 1 — Architecture & spec
+
+- Defined 13 editorial block types (paragraph, image, table, FAQ, CTA, video embed, code, callout, comparison, timeline, testimonial, gallery, product block).
+- Schema.org specification by content type: `Article`, `FAQPage`, `BreadcrumbList`.
+- 301 redirect rules at Nginx level for every URL in the old blog.
+- Accessibility criteria: mandatory alt text on images, minimum contrast ratios, heading hierarchy.
+
+### Phase 2 — URL migration
+
+- Full inventory extraction script: 1,092 URLs categorized.
+- Source → destination mapping audited by SEO and Editorial teams.
+- Individual cannibalization review for the 50 highest-traffic URLs.
+- Redirect QA in staging before production activation.
+
+### Phase 3 — Go-live & monitoring
+
+- Staged activation by category (not a big bang launch).
+- Search Console tracking dashboard for 30 days post-migration.
+- Fast-response protocol for URLs with impression drops.
+
+## Impact
+
+| Metric | Result |
+|---|---|
+| URLs migrated | 1,092 |
+| Editorial block types | 13 |
+| Organic traffic post-migration | 100% preserved |
+| SERP stability window | 30 days monitored |
+
+The subdomain's SEO authority consolidated into the main domain. The editorial team gained full publishing autonomy using predefined templates.

@@ -1,0 +1,32 @@
+## The origin
+
+It started while organising 15 days in a camper van through Slovenia. Lake Bled and its surroundings are well-known, but beyond that the information was scattered across dozens of sources: travel blogs, Google Maps, motorhome forums, camping apps, local weather forecasts. I ended up using AI to help build the itinerary — and that's when I saw the product: this should exist as an app.
+
+The problem wasn't just the initial planning. It was also what happens when the plan changes on the road — a mountain pass closes, it rains for three days straight, the family is tired. Without a centralised tool, reorganising means starting the research all over again.
+
+## What was built
+
+Bitácora Trip has three functional cores:
+
+**AI itinerary generation.** The user specifies a destination and number of days; the app returns a complete route with stages, estimated kilometres, recommended stops and what to see in each area. It's not a separate chatbot: the AI is integrated directly into the planning flow.
+
+**Real-time replanning chat.** Inside an active trip, the user can reorganise stages, ask about the local area, or adjust the plan if something changes. The AI has context about the current itinerary — it doesn't respond in a vacuum.
+
+**Travel diary.** Each day of the trip can be logged with photos, notes and status. The result is a real travel logbook saved permanently, not just a to-do list.
+
+Also: vehicle profile (set up once, used across all trips), 6 languages (Spanish, English, French, German, Italian and Chinese), and a design made to be used one-handed while the co-pilot drives.
+
+## Technical stack
+
+- **Frontend**: TypeScript + custom framework, no unnecessary UI dependencies
+- **Backend**: Self-hosted PocketBase — database, auth and photo storage in a single binary
+- **AI**: language model for itinerary generation and replanning chat
+- **CI/CD**: self-managed deployment with no paid services
+
+The decision to use PocketBase instead of Firebase or Supabase was deliberate: full control, zero cost and no vendor lock-in. The server runs on the same infrastructure as the rest of my projects.
+
+## Results and learning
+
+The app is live on the App Store (iOS) and in closed testing on Google Play (Android). The first real trip using Bitácora for both planning and journaling was SUPERVIAJAZO 2026 — 15 days, 7 countries, ~5,200 km in a camper.
+
+What building a consumer app solo teaches you most isn't the code: it's managing the complete cycle — design, development, distribution, reviews, updates — without a team. Every feature in the app passed a real-world filter: do we actually need this on a trip? If not, it doesn't make it in.

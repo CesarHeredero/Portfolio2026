@@ -1,0 +1,61 @@
+---
+slug: whatsapp-tasacion
+title: WhatsApp en el funnel de tasación: de dudas a citas en tienda
+category: UX & CONVERSIÓN
+year: "2024"
+impactType: ux
+featured: true
+tags:
+  - Flujos de conversión
+  - Multicanal
+  - CRM
+  - MVP
+kpis:
+  - value: "4"
+    label: Escenarios de uso
+  - value: "3"
+    label: Pasos del funnel
+---
+
+## Contexto
+
+El proceso de tasación de vehículos en Flexicar tiene 3 pasos: introducir matrícula, ver valoración estimada y solicitar cita. Los datos mostraban abandono significativo en cada transición, especialmente entre el paso 2 (ver valoración) y el paso 3 (confirmar cita).
+
+El equipo asumía que el problema era precio. Pero las sesiones grabadas mostraban algo diferente: los usuarios salían a buscar más información, no necesariamente insatisfechos con la valoración.
+
+## Problema
+
+- **Canal único**: sólo había teléfono para resolver dudas. Muchos usuarios no querían llamar.
+- **Fricción de canal**: pasar de digital a telefónico rompe el flujo.
+- **Objetivo mal definido**: el equipo medía "tasaciones completadas" (formulario enviado), no el objetivo real (cita presencial en tienda).
+- **Sin escenarios de recuperación**: si el usuario abandonaba, no había forma de reengancharlo.
+
+## Acción
+
+### Discovery
+
+- Análisis de sesiones grabadas para identificar patrones de abandono.
+- Entrevistas con el equipo de tienda para entender el valor real de cada tipo de lead.
+- Redefinición del KPI principal: de "formulario enviado" a "cita en tienda confirmada".
+
+### Diseño de escenarios WhatsApp
+
+Definí 4 escenarios de integración con WhatsApp Business:
+
+1. **En paso 1** (introducir matrícula): CTA de ayuda para usuarios que no saben su matrícula exacta.
+2. **En paso 2** (ver valoración): CTA de negociación para usuarios que quieren discutir el precio.
+3. **En abandono** (exit intent): mensaje de rescate con enlace directo al punto donde dejaron el proceso.
+4. **Post-formulario** (confirmación de cita): mensaje de confirmación con datos de la tienda.
+
+### Coordinación
+
+- Especificación técnica para integración con WhatsApp Business API.
+- Briefing al equipo de CRM para etiquetar correctamente los leads por escenario de origen.
+- Diseño de los mensajes template con el equipo de Comunicación.
+- Criterios de medición para el MVP y plan de iteración.
+
+## Impacto
+
+El canal de baja fricción quedó operativo. Las citas presenciales aumentaron en el segmento que antes abandonaba en paso 2.
+
+El rediseño del KPI tuvo un efecto secundario valioso: alineó a los equipos de Marketing, UX y Tienda alrededor del mismo objetivo, reduciendo el ruido en las revisiones de rendimiento.

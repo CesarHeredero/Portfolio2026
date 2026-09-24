@@ -1,0 +1,62 @@
+---
+slug: rendimiento-web
+title: Proving with data that tags were not what was slowing the site
+category: WEB PERFORMANCE
+year: "2024"
+impactType: performance
+tags:
+  - Core Web Vitals
+  - Lighthouse
+  - Pre/post
+  - Data-driven decisions
+kpis:
+  - value: "10+"
+    label: Audits
+  - value: "+528ms"
+    label: Real tag impact
+  - value: "16"
+    label: Sample URLs
+---
+
+## Context
+
+Flexicar's website had unacceptable load times on mobile: LCP (Largest Contentful Paint) reached 30 seconds on vehicle listing pages. Every time Marketing published a new GTM tag, the Dev team pointed to the tags as the cause of the problem.
+
+The issue: nobody had data to confirm or refute that hypothesis.
+
+## Problem
+
+- **Hypothesis without data**: blame fell on tags by intuition, not measurement.
+- **No audit protocol**: each release went live without before/after measurement.
+- **Inter-team friction**: Dev wanted to freeze tags, Marketing needed to keep publishing.
+- **Unknown root cause**: if tags weren't the real problem, the actual bottleneck remained unidentified.
+
+## Action
+
+### Audit protocol design
+
+I established a systematic pre/post measurement method for each change:
+
+1. **Sample of 16 representative URLs** per section (home, listing, detail, blog, institutional).
+2. **Measurement in 3 conditions**: all tags active, GTM disabled, empty cache.
+3. **Combined tools**: Lighthouse CLI + WebPageTest (multiple locations) + CrUX (real user data).
+4. **Metrics recorded**: LCP, FID/INP, CLS, TTFB, Total Blocking Time.
+
+### Audit execution
+
+- 10+ audits conducted across 16 URLs over 6 months.
+- Time correlation with GTM publishing history.
+- Looker Studio dashboard with Core Web Vitals time series.
+
+### Key finding
+
+The measured impact of **all tags combined** on LCP was **+528ms**. A percentage of the problem, not the main cause.
+
+Real causes identified: unoptimized images (WebP not applied to listings), third-party render-blocking CSS, and server response time from uncached database queries.
+
+## Impact
+
+- The "tags vs performance" debate was closed with data, not opinions.
+- The Dev team redirected focus to the real causes: image optimization and server-side caching.
+- A pre/post audit protocol was established that the team still uses on every major release.
+- The Core Web Vitals dashboard became part of the QA process.

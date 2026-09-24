@@ -1,0 +1,55 @@
+---
+slug: ips-fraudulentas
+title: Detección y bloqueo de +300 IPs generando enlaces fraudulentos
+category: SEO & SEGURIDAD
+year: "2025"
+impactType: seo
+tags:
+  - Search Console
+  - WAF
+  - Disavow
+  - Gestión de incidentes
+kpis:
+  - value: "300+"
+    label: IPs neutralizadas
+  - value: "3"
+    label: Fases de respuesta
+---
+
+## Contexto
+
+Durante una revisión rutinaria de Google Search Console detectamos un patrón anómalo: cientos de backlinks nuevos apuntando a páginas de Flexicar desde dominios irreconocibles. El análisis reveló que más de 300 IPs únicas estaban generando enlaces artificiales de forma automatizada.
+
+## Problema
+
+- **Riesgo de penalización**: Google puede interpretar patrones de enlaces artificiales como manipulación deliberada del PageRank, incluso si el beneficiario no los solicitó.
+- **Contaminación del perfil de enlaces**: el disavow file estaba desactualizado y no cubría los dominios nuevos.
+- **Sin protocolo establecido**: el equipo no tenía un procedimiento de respuesta a incidentes SEO de este tipo.
+- **Ventana de exposición**: cuantas más páginas crawleara Google con esos enlaces, mayor el riesgo.
+
+## Acción
+
+### Fase 1 — Auditoría y clasificación
+
+- Extracción completa del perfil de backlinks desde Search Console y Ahrefs.
+- Clasificación de dominios: spam claro, dudoso, legítimo.
+- Identificación de las 300+ IPs únicas involucradas y los patrones de URL origen.
+- Priorización por volumen de enlaces y antigüedad del dominio spam.
+
+### Fase 2 — Bloqueo a nivel infraestructura
+
+- Coordinación con el equipo de Infra para reglas WAF (Web Application Firewall).
+- Bloqueo de rangos de IP por ASN cuando el patrón era suficientemente claro.
+- Monitorización de nuevas IPs emergentes durante 2 semanas.
+
+### Fase 3 — Limpieza en Google
+
+- Actualización del fichero Disavow en Search Console con todos los dominios identificados.
+- Documentación del protocolo para futuras incidencias.
+- Briefing al equipo SEO sobre señales de alerta temprana.
+
+## Impacto
+
+La autoridad de dominio de Flexicar quedó protegida. El protocolo de respuesta documentado se convirtió en el procedimiento estándar del equipo SEO para incidencias similares.
+
+Sin datos de tráfico atribuibles directamente al bloqueo (los efectos negativos no llegaron a materializarse), pero el riesgo fue neutralizado antes de que Google procesara los enlaces en su siguiente actualización de índice.

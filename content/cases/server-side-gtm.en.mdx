@@ -1,0 +1,67 @@
+---
+slug: server-side-gtm
+title: Recovering 28% of invisible users with server-side tracking
+category: DATA & PRIVACY
+year: "2025"
+impactType: data
+featured: true
+tags:
+  - GTM Server-Side
+  - BigQuery
+  - First-Party
+  - GDPR
+  - Meta CAPI
+kpis:
+  - value: "28%"
+    label: Users recovered
+  - value: "7d → 2y"
+    label: Cookie lifetime
+  - value: "4"
+    label: Teams coordinated
+---
+
+## Context
+
+Safari ITP (Intelligent Tracking Prevention) deletes third-party cookies 7 days after the last visit. In a car ecommerce where the decision cycle spans weeks or months, this means losing track of users at exactly the critical moment.
+
+On top of that, 28% of active Flexicar users were blocking or rejecting client-side tracking.
+
+## Problem
+
+- **Analytics blindness**: nearly a third of users were invisible to GA4 and Meta Pixel.
+- **Broken attribution**: conversions arriving months later couldn't be linked to the original visit.
+- **Disconnected CRM data**: Salesforce leads weren't cross-referenced with web behavior.
+- **Legal pressure**: GDPR required a more robust consent model for compliance.
+
+## Action
+
+### Server-side architecture
+
+- Google Tag Manager Server-Side deployment on own infrastructure (Cloud Run).
+- First-party cookies set from the server: 2-year lifetime, own domain.
+- GA4 and Meta CAPI event routing through the server before reaching final destinations.
+
+### CRM and BigQuery integration
+
+- Technical specification of the data flow: web → sGTM → BigQuery → Salesforce.
+- Identity model definition: unified `client_id`, `user_id`, `session_id`.
+- Reconciliation dashboard comparing client-side vs server-side data.
+
+### Team coordination
+
+I coordinated 4 teams in parallel over 3 months:
+- **Infra**: Cloud Run provisioning, sGTM domain setup.
+- **Dev**: dataLayer modifications and custom events.
+- **Data**: BigQuery table design and pipelines.
+- **Legal/Compliance**: consent model review and cookie policy.
+
+## Impact
+
+| Metric | Before | After |
+|---|---|---|
+| Visible users | ~72% | ~100% |
+| Cookie lifetime (Safari) | 7 days | 2 years |
+| Multi-session attribution | Broken | Working |
+| Teams coordinated | — | 4 |
+
+Paid media investment became measurable for a previously invisible segment, enabling budget allocation optimization based on real data.
